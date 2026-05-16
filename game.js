@@ -898,15 +898,21 @@ function shuffle(arr){
 
 function startQuiz(){
   const r=State.currentRegion;
-  // Soruları karıştır; şıkları SADECE tek-cevap/scenario tipinde karıştır
-  // (multi'de correct bir dizi, drag'de pair yapısı bozulur)
+  // Soruları karıştır; ardından her sorunun şıklarını da karıştır
+  // (single/scenario: correct index; multi: correct array; drag: pair yapısı — sağ sütun zaten renderDrag içinde shuffle'lanıyor)
   State.shuffledQuestions = shuffle(r.questions).map(q=>{
     if(q.type === 'single' || q.type === 'scenario'){
       const correctText = q.options[q.correct];
       const shuffledOpts = shuffle(q.options);
       return {...q, options: shuffledOpts, correct: shuffledOpts.indexOf(correctText)};
     }
-    // multi & drag için orijinal sırayı koru (içeride zaten karıştırılıyor)
+    if(q.type === 'multi'){
+      const correctTexts = (q.correct||[]).map(i => q.options[i]);
+      const shuffledOpts = shuffle(q.options);
+      const newCorrect = correctTexts.map(t => shuffledOpts.indexOf(t)).sort((a,b)=>a-b);
+      return {...q, options: shuffledOpts, correct: newCorrect};
+    }
+    // drag: renderDrag içinde sağ sütun shuffle'lanıyor; sol/değer çiftleri korunur
     return {...q};
   });
   State.currentQIdx=0;State.quizScore=0;State.quizCorrect=0;
