@@ -16,7 +16,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
   <div id="game-container">
@@ -25,21 +25,25 @@
     <div id="screen-intro" class="screen active">
       <div class="particles" id="particles-intro"></div>
       <div class="intro-content">
-        <div class="logo-pulse">
-          <img src="icons/icon.svg" class="logo-map-img" alt="Türkiye Kültürel Miras Avcısı"/>
-        </div>
         <h1 class="game-title">TÜRKİYE<br><span class="game-title-sub">KÜLTÜREL MİRAS AVCISI</span></h1>
-        <p class="game-subtitle">7 Bölge · 20 UNESCO Mirası · 35 Soru</p>
+        <p class="game-subtitle">7 Bölge · UNESCO · Kategori × Tip İlerleme</p>
         <div class="badge-row">
-          <span class="badge-chip">🏛️ Osmanlı Mirası</span>
-          <span class="badge-chip">🗿 Antik Kentler</span>
-          <span class="badge-chip">🏺 UNESCO Alanları</span>
+          <span class="badge-chip">🏛️ UNESCO & Tarihi Yapılar</span>
+          <span class="badge-chip">🍲 Geleneksel Mutfak</span>
+          <span class="badge-chip">🧵 El Sanatları</span>
+          <span class="badge-chip">🎶 Müzik & Folklor</span>
         </div>
         <div class="intro-buttons">
           <button class="btn-primary" id="btn-start">MACERAYA BAŞLA</button>
           <button class="btn-secondary" id="btn-about">Proje Hakkında</button>
           <button class="btn-install" id="btn-install" style="display:none;">📲 Uygulamayı Yükle</button>
         </div>
+
+        <!-- Acıbadem Okulları bilgisi -->
+        <footer class="acibadem-footer">
+          <img src="icons/acibadem-okullari.png" alt="Acıbadem Okulları" class="acibadem-logo"/>
+          <span>Acıbadem Okulları tarafından hazırlanmıştır</span>
+        </footer>
         <p class="tubitak-tag">TÜBİTAK 4006 - Bilim Fuarı Projesi</p>
       </div>
     </div>
@@ -69,6 +73,8 @@
           <span class="score-display">Puan: <strong id="total-score">0</strong></span>
         </div>
       </header>
+
+      <button id="btn-progress-open" class="btn-secondary btn-progress-open" type="button" aria-label="İlerleme detaylarını aç">🏆 İlerleme Detayları</button>
 
       <div class="map-wrapper">
         <h2 class="map-title">Keşfetmek istediğin bölgeyi seç!</h2>
@@ -137,15 +143,24 @@
           <p id="ri-story-text"></p>
         </div>
         <div class="info-grid" id="ri-info-grid"></div>
-        <div class="mission-card">
+        <div class="mission-card" id="ri-mission-card">
           <h3>Görevin</h3>
           <p id="ri-mission"></p>
         </div>
         <div class="badge-preview-card">
           <span id="ri-badge-icon"></span>
           <div>
-            <small>Bu bölgeyi tamamlarsan kazanacağın unvan:</small>
+            <small id="ri-badge-tagline">Bu bölgeyi tamamlarsan kazanacağın unvan:</small>
             <strong id="ri-badge-name"></strong>
+          </div>
+        </div>
+        <div id="ri-category-preview" class="ri-category-preview"></div>
+        <div id="ri-completed-banner" class="ri-completed-banner" style="display:none">
+          <div class="ri-cb-icon">✓</div>
+          <div class="ri-cb-body">
+            <strong>Bu bölge tamamlandı!</strong>
+            <span id="ri-completed-detail">—</span>
+            <small>Bir bölge bir kez oynanır — ilerlemen kalıcı olarak kaydedildi.</small>
           </div>
         </div>
         <div class="ri-buttons">
@@ -169,10 +184,16 @@
         <div class="timer-bar" id="timer-bar"></div>
       </div>
 
+      <div class="timer-num" id="q-timer-num"><span id="q-timer-sec">60</span> sn</div>
+
       <div class="quiz-body">
         <div class="question-number" id="q-number">Soru 1/4</div>
         <div class="quiz-content-row">
           <div class="q-image-wrap" id="q-image-wrap" style="display:none">
+            <div class="q-image-loader" id="q-image-loader">
+              <div class="q-image-spinner"></div>
+              <span>Görsel yükleniyor…</span>
+            </div>
             <img id="q-image" src="" alt="Kültürel Miras"/>
             <span class="q-image-caption" id="q-image-caption"></span>
           </div>
@@ -206,8 +227,13 @@
         </div>
         <div class="region-score-box">
           <span>Bölge Puanı:</span>
-          <strong id="bc-score"></strong>
-          <span>/ 500</span>
+          <strong id="bc-max-score">1.000</strong>
+          <span class="bc-slash">/</span>
+          <strong id="bc-score" class="bc-achieved">0</strong>
+        </div>
+        <div class="bc-percentage">
+          <div class="bc-pct-bar"><div class="bc-pct-fill" id="bc-pct-fill"></div></div>
+          <div class="bc-pct-label">Başarın: <strong id="bc-pct">%0</strong></div>
         </div>
         <div class="complete-fact" id="bc-fact"></div>
         <div class="complete-buttons">
@@ -250,6 +276,11 @@
           <p>adlı öğrencinin "Türkiye'yi Keşfet" eğitsel oyununu başarıyla tamamladığını ve</p>
           <div class="cert-score-big" id="cert-score"></div>
           <p>puan aldığını belgeler.</p>
+          <div class="cert-percentage-box">
+            <div class="cert-pct-label">Başarı Oranı</div>
+            <div class="cert-pct-value" id="cert-pct">%0</div>
+            <div class="cert-pct-bar"><div class="cert-pct-fill" id="cert-pct-fill"></div></div>
+          </div>
           <div class="cert-badges-row" id="cert-badges-row"></div>
           <div class="cert-footer">
             <span>TÜBİTAK 4006 - Bilim Fuarı Projesi</span>
@@ -299,6 +330,29 @@
       </div>
     </div>
 
+    <!-- İLERLEME DETAYLARI MODAL -->
+    <div id="progress-modal" class="progress-modal" role="dialog" aria-modal="true" aria-labelledby="progress-modal-title" aria-hidden="true">
+      <div class="pm-scrim" id="pm-scrim"></div>
+      <div class="pm-panel" role="document">
+        <header class="pm-header">
+          <div class="pm-title-group">
+            <h2 id="progress-modal-title" class="pm-title">İlerleme Detayları</h2>
+            <p class="pm-subtitle">Bölgeler · Kategoriler · Soru Tipleri</p>
+          </div>
+          <div class="pm-header-actions">
+            <button id="btn-progress-reset" class="btn-ghost" type="button" aria-label="Tüm ilerlemeyi sıfırla">İlerlemeyi Sıfırla</button>
+            <button id="btn-progress-close" class="pm-close" type="button" aria-label="İlerleme penceresini kapat">✕</button>
+          </div>
+        </header>
+        <section class="pm-body">
+          <div id="progress-modal-body"></div>
+        </section>
+        <footer class="pm-footer">
+          <button id="btn-progress-back" class="btn-secondary" type="button">Geri Dön</button>
+        </footer>
+      </div>
+    </div>
+
   </div><!-- /game-container -->
 
   <!-- PWA: Güncelleme bildirimi -->
@@ -313,7 +367,9 @@
       color:rgba(255,255,255,0.4);cursor:pointer;font-size:1rem;">✕</button>
   </div>
 
-  <script src="game.js"></script>
+  <script src="region-badges.js?v=16"></script>
+  <script src="questions-extended.js?v=16"></script>
+  <script src="game.js?v=16"></script>
   <script>
     /* ── PWA Kaydı ── */
     const PWA = {

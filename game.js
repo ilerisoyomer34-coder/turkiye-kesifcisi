@@ -1,22 +1,47 @@
 /* ============================================================
-   TÜRKİYE'Yİ KEŞFET — OYUN MOTORU v2.0
+   TÜRKİYE'Yİ KEŞFET — OYUN MOTORU v3.0
    TÜBİTAK 4006 Bilim Fuarı Projesi
+   v3.0: Kategori × Bölge × Soru tipi ilerleme + SVG rozetler
    ============================================================ */
 'use strict';
 
+// ── KÜLTÜREL MİRAS KATEGORİLERİ ──────────────────────────────
+const CATEGORIES = {
+  unesco:  { label: 'UNESCO & Tarihi Yapılar',  icon: '🏛️', color: '#f9c74f' },
+  cuisine: { label: 'Geleneksel Mutfak',         icon: '🍲', color: '#e76f51' },
+  craft:   { label: 'El Sanatları & Zanaat',     icon: '🧵', color: '#a855f7' },
+  music:   { label: 'Müzik, Dans & Folklor',     icon: '🎶', color: '#43e97b' },
+};
+const CATEGORY_KEYS = ['unesco','cuisine','craft','music'];
+
+// ── SORU TİPLERİ ─────────────────────────────────────────────
+const QUESTION_TYPES = {
+  single:   { label: 'Tek Cevap',     icon: '⚪' },
+  multi:    { label: 'Çoklu Cevap',   icon: '☑️' },
+  drag:     { label: 'Eşleştirme',    icon: '🔗' },
+  scenario: { label: 'Senaryo',       icon: '📖' },
+};
+const TYPE_KEYS = ['single','multi','drag','scenario'];
+
 // ── WİKİPEDİA GÖRSEL YÜKLEYICI ───────────────────────────────
+// TR Wikipedia'yı önce dene (Türkiye konuları için daha iyi kapsama), sonra EN
 const _wikiCache = {};
 async function fetchWikiThumb(title) {
   if (_wikiCache[title] !== undefined) return _wikiCache[title];
-  try {
-    const r = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-    const d = await r.json();
-    _wikiCache[title] = d.thumbnail?.source || null;
-  } catch { _wikiCache[title] = null; }
-  return _wikiCache[title];
+  for (const lang of ['tr', 'en']) {
+    try {
+      const r = await fetch(
+        `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+      if (!r.ok) continue;
+      const d = await r.json();
+      const src = d.thumbnail?.source || d.originalimage?.source;
+      if (src) { _wikiCache[title] = src; return src; }
+    } catch {}
+  }
+  _wikiCache[title] = null;
+  return null;
 }
 
 // ── BÖLGE VERİLERİ ───────────────────────────────────────────
@@ -422,6 +447,30 @@ const REGIONS = [
   }
 ];
 
+// ── SORU ZENGINLEŞTIRME: Eski + Yeni soruları birleştir ──────
+// Eski 5 soru/bölge → unesco + single olarak etiketlenir
+// EXTENDED_QUESTIONS (questions-extended.js) varsa eklenir
+(function enrichQuestions(){
+  // Bazı eski sorular el sanatı/folklor kategorilerine daha uygun — manuel düzelt
+  const legacyCategoryOverride = {
+    'karadeniz': { 4: 'craft' },      // Kastamonu yazmacılığı
+    'guneydogu': { 3: 'craft' },      // Mardin taş işçiliği
+  };
+  REGIONS.forEach(r => {
+    r.questions.forEach((q, idx) => {
+      if (!q.category) {
+        const ov = legacyCategoryOverride[r.id];
+        q.category = (ov && ov[idx]) ? ov[idx] : 'unesco';
+      }
+      if (!q.type) q.type = 'single';
+    });
+    // Yeni kategorize soruları ekle (yüklenmişse)
+    if (typeof EXTENDED_QUESTIONS !== 'undefined' && EXTENDED_QUESTIONS[r.id]) {
+      r.questions = r.questions.concat(EXTENDED_QUESTIONS[r.id]);
+    }
+  });
+})();
+
 // ── SES MOTORU ───────────────────────────────────────────────
 const SFX = (() => {
   let ctx = null;
@@ -460,21 +509,85 @@ const State = {
   timerInterval: null,
   timeLeft: 0,
   questionStartTime: 0,
+  // v3: detaylı ilerleme — { regionId: { category: { type: {answered, correct} } } }
+  progress: {},
+  // Multi-select & drag için geçici durum
+  multiSelected: new Set(),
+  dragPairs: {},      // { leftItem: rightItem }
+  dragSelectedLeft: null,
 
   save(){
-    localStorage.setItem('tkf2', JSON.stringify({
+    localStorage.setItem('tkf3', JSON.stringify({
       playerName: this.playerName,
       completedRegions: this.completedRegions,
       sessionScore: this.sessionScore,
       totalAnswered: this.totalAnswered,
       totalCorrect: this.totalCorrect,
       responseTimes: this.responseTimes,
+      progress: this.progress,
     }));
+  },
+  load(){
+    const raw = localStorage.getItem('tkf3') || localStorage.getItem('tkf2');
+    if (!raw) return false;
+    try {
+      const d = JSON.parse(raw);
+      this.playerName = d.playerName || '';
+      this.completedRegions = d.completedRegions || {};
+      this.sessionScore = d.sessionScore || 0;
+      this.totalAnswered = d.totalAnswered || 0;
+      this.totalCorrect = d.totalCorrect || 0;
+      this.responseTimes = d.responseTimes || [];
+      this.progress = d.progress || {};
+      return true;
+    } catch { return false; }
   },
   reset(){
     this.completedRegions={};this.sessionScore=0;
     this.totalAnswered=0;this.totalCorrect=0;this.responseTimes=[];
+    this.progress={};
     localStorage.removeItem('tkf2');
+    localStorage.removeItem('tkf3');
+  },
+
+  // ── İlerleme kayıt yardımcısı ──
+  trackAnswer(regionId, category, type, isCorrect){
+    if(!this.progress[regionId]) this.progress[regionId]={};
+    if(!this.progress[regionId][category]) this.progress[regionId][category]={};
+    if(!this.progress[regionId][category][type]) this.progress[regionId][category][type]={answered:0,correct:0};
+    this.progress[regionId][category][type].answered++;
+    if(isCorrect) this.progress[regionId][category][type].correct++;
+  },
+
+  // Kategori bazında doğru/toplam (bölge için)
+  categoryStats(regionId, category){
+    const c = this.progress[regionId]?.[category];
+    if(!c) return {answered:0, correct:0};
+    return TYPE_KEYS.reduce((acc,t)=>{
+      const s = c[t]||{answered:0,correct:0};
+      acc.answered += s.answered; acc.correct += s.correct;
+      return acc;
+    },{answered:0,correct:0});
+  },
+
+  // Soru tipi bazında doğru/toplam (bölge için)
+  typeStats(regionId, type){
+    const r = this.progress[regionId];
+    if(!r) return {answered:0, correct:0};
+    return CATEGORY_KEYS.reduce((acc,c)=>{
+      const s = r[c]?.[type]||{answered:0,correct:0};
+      acc.answered += s.answered; acc.correct += s.correct;
+      return acc;
+    },{answered:0,correct:0});
+  },
+
+  // Bölge için toplam doğru oranı
+  regionStats(regionId){
+    return CATEGORY_KEYS.reduce((acc,c)=>{
+      const s = this.categoryStats(regionId,c);
+      acc.answered += s.answered; acc.correct += s.correct;
+      return acc;
+    },{answered:0,correct:0});
   }
 };
 
@@ -487,7 +600,21 @@ function showScreen(id){
   if(s)s.classList.add('active');
 }
 
-function starsFor(score){ return score>=450?3:score>=300?2:score>=150?1:0; }
+function starsFor(score, maxScore){
+  if(!maxScore) return 0;
+  const pct = score/maxScore;
+  if(pct>=0.85) return 3;
+  if(pct>=0.60) return 2;
+  if(pct>=0.35) return 1;
+  return 0;
+}
+// Bir soru dizisi için olası maksimum puanı hesapla
+function maxScoreFor(questions){
+  return questions.reduce((sum,q)=>{
+    const base = q.type==='single'?100 : q.type==='multi'?140 : q.type==='drag'?160 : 180;
+    return sum + base + 60; // 60 = anında cevap bonusu
+  },0);
+}
 function renderStars(n){ return '⭐'.repeat(n)+'☆'.repeat(3-n); }
 
 function confetti(){
@@ -558,21 +685,134 @@ function updateMapUI(){
     el.classList.toggle('completed',!!State.completedRegions[el.dataset.region]);
   });
 
-  // Rozetler
-  const strip=$('badges-strip');strip.innerHTML='';
+  // Rozetler — kazanılanlar SVG, kazanılmamışlar gri/kilitli ön gösterim
+  const strip=$('badges-strip');
+  clearEl(strip);
   REGIONS.forEach(r=>{
-    if(State.completedRegions[r.id]){
-      const sp=document.createElement('span');
-      sp.className='strip-badge';sp.textContent=r.icon;
-      sp.dataset.label=`${r.number}. ${r.badge}`;
-      strip.appendChild(sp);
+    const earned = !!State.completedRegions[r.id];
+    const wrap = el('div', {className: 'strip-badge'+(earned?' earned':' locked'), title:`${r.number}. ${r.badge}`});
+    wrap.dataset.label = `${r.number}. ${r.badge}`;
+    const inner = el('div', {className:'strip-badge-inner'});
+    if(typeof REGION_BADGES !== 'undefined' && REGION_BADGES[r.id]){
+      const tpl = new DOMParser().parseFromString(REGION_BADGES[r.id], 'image/svg+xml');
+      const svg = tpl.documentElement;
+      if(svg && svg.nodeName.toLowerCase()==='svg') inner.appendChild(document.importNode(svg, true));
+    } else {
+      inner.textContent = r.icon;
     }
+    wrap.appendChild(inner);
+    // İlerleme halkası — bölgenin doğru/toplam oranı
+    const rs = State.regionStats(r.id);
+    const totalQs = r.questions.length;
+    const pct = totalQs ? Math.round(rs.correct/totalQs*100) : 0;
+    const ring = el('div',{className:'strip-badge-ring'});
+    ring.style.background = `conic-gradient(${r.color} ${pct*3.6}deg, rgba(255,255,255,0.08) 0deg)`;
+    wrap.appendChild(ring);
+    const label = el('div', {className:'strip-badge-label', text:`${rs.correct}/${totalQs}`});
+    wrap.appendChild(label);
+    strip.appendChild(wrap);
   });
-  if(!strip.children.length)
-    strip.innerHTML='<span style="font-size:.8rem;color:var(--text-dim);letter-spacing:1px">Haritadan bir bölgeye tıkla!</span>';
 
   if(Object.keys(State.completedRegions).length===REGIONS.length)
     setTimeout(showFinalScreen,800);
+}
+
+// ── DETAYLI İLERLEME MATRİSİ ─────────────────────────────────
+function openProgressMatrix(){
+  const modal = $('progress-modal');
+  if(!modal) return;
+  const body = $('progress-modal-body');
+  clearEl(body);
+
+  // Üst: Genel özet
+  const overall = el('div', {className:'pm-overall'});
+  const totalQ = REGIONS.reduce((s,r)=>s+r.questions.length,0);
+  const totalC = REGIONS.reduce((s,r)=>s+State.regionStats(r.id).correct,0);
+  const totalA = REGIONS.reduce((s,r)=>s+State.regionStats(r.id).answered,0);
+  overall.appendChild(el('div',{className:'pm-overall-row', text:`Toplam: ${totalC} doğru / ${totalA} cevaplanan / ${totalQ} soru`}));
+  body.appendChild(overall);
+
+  // Kategori başlıkları
+  CATEGORY_KEYS.forEach(catKey=>{
+    const cat = CATEGORIES[catKey];
+    const totalCatQ = REGIONS.reduce((s,r)=>s+r.questions.filter(q=>q.category===catKey).length,0);
+    const totalCatC = REGIONS.reduce((s,r)=>s+State.categoryStats(r.id,catKey).correct,0);
+    const card = el('div',{className:'pm-cat-card', style:{borderColor:cat.color}});
+    const header = el('div',{className:'pm-cat-header'});
+    header.appendChild(el('span',{className:'pm-cat-icon', text:cat.icon, style:{color:cat.color}}));
+    header.appendChild(el('div',{className:'pm-cat-title', text:cat.label}));
+    header.appendChild(el('div',{className:'pm-cat-pct', text:`${totalCatC} / ${totalCatQ}`, style:{color:cat.color}}));
+    card.appendChild(header);
+
+    // Bölge satırları
+    REGIONS.forEach(r=>{
+      const catQs = r.questions.filter(q=>q.category===catKey);
+      if(!catQs.length) return;
+      const st = State.categoryStats(r.id, catKey);
+      const row = el('div',{className:'pm-region-row'});
+      row.appendChild(el('div',{className:'pm-region-name', text:`${r.icon} ${r.name.replace(' Bölgesi','')}`}));
+      const barWrap = el('div',{className:'pm-bar-wrap'});
+      // Tip bazında segmentler
+      TYPE_KEYS.forEach(tk=>{
+        const tQs = catQs.filter(q=>q.type===tk).length;
+        if(!tQs) return;
+        const tSt = (State.progress[r.id]?.[catKey]?.[tk]) || {answered:0,correct:0};
+        for(let i=0;i<tQs;i++){
+          const seg = el('div',{className:'pm-seg type-'+tk, title:`${QUESTION_TYPES[tk].label}`});
+          if(i<tSt.correct) seg.classList.add('done');
+          else if(i<tSt.answered) seg.classList.add('wrong');
+          barWrap.appendChild(seg);
+        }
+      });
+      row.appendChild(barWrap);
+      row.appendChild(el('div',{className:'pm-region-stat', text:`${st.correct}/${catQs.length}`}));
+      card.appendChild(row);
+    });
+
+    body.appendChild(card);
+  });
+
+  // Tip bazında özet
+  const typeCard = el('div',{className:'pm-cat-card', style:{borderColor:'var(--primary)'}});
+  typeCard.appendChild(el('div',{className:'pm-cat-header'}, [
+    el('span',{className:'pm-cat-icon', text:'🎯'}),
+    el('div',{className:'pm-cat-title', text:'Soru Tiplerine Göre'})
+  ]));
+  TYPE_KEYS.forEach(tk=>{
+    const typ = QUESTION_TYPES[tk];
+    const totalT = REGIONS.reduce((s,r)=>s+r.questions.filter(q=>q.type===tk).length,0);
+    const corT = REGIONS.reduce((s,r)=>s+(CATEGORY_KEYS.reduce((c,ck)=>c+((State.progress[r.id]?.[ck]?.[tk]?.correct)||0),0)),0);
+    const row = el('div',{className:'pm-region-row'});
+    row.appendChild(el('div',{className:'pm-region-name', text:`${typ.icon} ${typ.label}`}));
+    const bar = el('div',{className:'pm-typebar-wrap'});
+    const fill = el('div',{className:'pm-typebar-fill type-'+tk, style:{width:(totalT?(corT/totalT*100):0)+'%'}});
+    bar.appendChild(fill);
+    row.appendChild(bar);
+    row.appendChild(el('div',{className:'pm-region-stat', text:`${corT}/${totalT}`}));
+    typeCard.appendChild(row);
+  });
+  body.appendChild(typeCard);
+
+  modal.classList.add('open');
+}
+function closeProgressMatrix(){ $('progress-modal')?.classList.remove('open'); }
+
+// ── SVG ROZET YERLEŞTİRİCİSİ ─────────────────────────────────
+function injectBadgeSvg(containerId, regionId, fallbackEmoji){
+  const c = $(containerId);
+  if(!c) return;
+  clearEl(c);
+  if(typeof REGION_BADGES !== 'undefined' && REGION_BADGES[regionId]){
+    // SVG'yi parse edip ekle (innerHTML kullanmadan, DOMParser ile)
+    const tpl = new DOMParser().parseFromString(REGION_BADGES[regionId], 'image/svg+xml');
+    const svg = tpl.documentElement;
+    if(svg && svg.nodeName.toLowerCase()==='svg'){
+      c.appendChild(document.importNode(svg, true));
+      c.classList.add('has-svg');
+      return;
+    }
+  }
+  c.textContent = fallbackEmoji || '🏛️';
 }
 
 // ── BÖLGE GİRİŞ ─────────────────────────────────────────────
@@ -587,22 +827,65 @@ function enterRegion(rid){
   $('ri-name').textContent=`${region.number}. ${region.name}`;
   $('ri-story-text').textContent=region.story;
   $('ri-mission').textContent=region.mission;
-  $('ri-badge-icon').textContent=region.icon;
+  // SVG rozet
+  injectBadgeSvg('ri-badge-icon', region.id, region.icon);
   $('ri-badge-name').textContent=region.badge;
 
-  // Bilgi kartları
+  // ── Bölge tamamlanmış mı? Tekrar oynamayı engelle ──
+  const done = State.completedRegions[region.id];
+  const startBtn = $('btn-start-quiz');
+  const banner = $('ri-completed-banner');
+  const detail = $('ri-completed-detail');
+  const tagline = $('ri-badge-tagline');
+  const missionCard = $('ri-mission-card');
+  if(done){
+    const pct = Math.round((done.score/(done.maxScore||1000))*100);
+    if(startBtn) startBtn.style.display='none';
+    if(banner) banner.style.display='flex';
+    if(detail) detail.textContent = `${done.score.toLocaleString('tr-TR')} / ${(done.maxScore||1000).toLocaleString('tr-TR')} puan · Başarın %${pct} · ${renderStars(done.stars||0)}`;
+    if(tagline) tagline.textContent = 'Kazandığın unvan:';
+    if(missionCard) missionCard.style.display='none';
+  } else {
+    if(startBtn) startBtn.style.display='';
+    if(banner) banner.style.display='none';
+    if(tagline) tagline.textContent = 'Bu bölgeyi tamamlarsan kazanacağın unvan:';
+    if(missionCard) missionCard.style.display='';
+  }
+
+  // Bilgi kartları — güvenli DOM
   const infoGrid=$('ri-info-grid');
   if(infoGrid){
-    infoGrid.innerHTML=region.infoCards.map(c=>
-      `<div class="info-card"><span class="info-label">${c.label}</span><span class="info-value">${c.value}</span></div>`
-    ).join('');
+    clearEl(infoGrid);
+    region.infoCards.forEach(c=>{
+      const card = el('div',{className:'info-card'});
+      card.appendChild(el('span',{className:'info-label', text:c.label}));
+      card.appendChild(el('span',{className:'info-value', text:c.value}));
+      infoGrid.appendChild(card);
+    });
+  }
+
+  // Kategori önizleme — bu bölgede her kategoriden kaç soru var?
+  const previewWrap = $('ri-category-preview');
+  if(previewWrap){
+    clearEl(previewWrap);
+    CATEGORY_KEYS.forEach(catKey=>{
+      const count = region.questions.filter(q=>q.category===catKey).length;
+      if(count===0) return;
+      const stats = State.categoryStats(region.id, catKey);
+      const cat = CATEGORIES[catKey];
+      const chip = el('div', {className:'cat-preview-chip', style:{borderColor:cat.color, color:cat.color}});
+      chip.appendChild(document.createTextNode(`${cat.icon} ${cat.label} `));
+      const c = el('strong', {text:`${stats.correct}/${count}`, style:{marginLeft:'4px'}});
+      chip.appendChild(c);
+      previewWrap.appendChild(chip);
+    });
   }
 
   showScreen('region-intro');
 }
 
 // ── QUIZ ─────────────────────────────────────────────────────
-const Q_TIME=20;
+const Q_TIME=60;
 
 function shuffle(arr){
   const a=[...arr];
@@ -615,13 +898,19 @@ function shuffle(arr){
 
 function startQuiz(){
   const r=State.currentRegion;
-  // Soruları ve şıkları her oyunda karıştır
+  // Soruları karıştır; şıkları SADECE tek-cevap/scenario tipinde karıştır
+  // (multi'de correct bir dizi, drag'de pair yapısı bozulur)
   State.shuffledQuestions = shuffle(r.questions).map(q=>{
-    const correctText = q.options[q.correct];
-    const shuffledOpts = shuffle(q.options);
-    return {...q, options: shuffledOpts, correct: shuffledOpts.indexOf(correctText)};
+    if(q.type === 'single' || q.type === 'scenario'){
+      const correctText = q.options[q.correct];
+      const shuffledOpts = shuffle(q.options);
+      return {...q, options: shuffledOpts, correct: shuffledOpts.indexOf(correctText)};
+    }
+    // multi & drag için orijinal sırayı koru (içeride zaten karıştırılıyor)
+    return {...q};
   });
   State.currentQIdx=0;State.quizScore=0;State.quizCorrect=0;
+  State.quizMaxScore = maxScoreFor(State.shuffledQuestions);
   $('q-region-name').textContent=`${r.icon} ${r.name}`;
   $('q-score-live').textContent='0';
 
@@ -637,20 +926,77 @@ function startQuiz(){
   renderQuestion();
 }
 
+// Küçük yardımcılar — güvenli DOM oluşturma
+function el(tag, props={}, children=[]){
+  const e = document.createElement(tag);
+  for(const k in props){
+    if(k==='className') e.className = props[k];
+    else if(k==='dataset') Object.assign(e.dataset, props[k]);
+    else if(k==='style' && typeof props[k]==='object') Object.assign(e.style, props[k]);
+    else if(k.startsWith('on') && typeof props[k]==='function') e.addEventListener(k.slice(2).toLowerCase(), props[k]);
+    else if(k==='text') e.textContent = props[k];
+    else e[k] = props[k];
+  }
+  for(const c of [].concat(children||[])) if(c) e.appendChild(typeof c==='string'?document.createTextNode(c):c);
+  return e;
+}
+function clearEl(n){ while(n.firstChild) n.removeChild(n.firstChild); }
+
 function renderQuestion(){
   const qi=State.currentQIdx,q=State.shuffledQuestions[qi];
   const total=State.shuffledQuestions.length;
   $('answer-feedback').style.display='none';
-  $('q-number').textContent=`Soru ${qi+1} / ${total}`;
+
+  // Header: soru sırası + kategori chip + tip chip
+  const num = $('q-number');
+  clearEl(num);
+  num.appendChild(document.createTextNode(`Soru ${qi+1} / ${total} `));
+  const cat = CATEGORIES[q.category];
+  if(cat){
+    const chip = el('span',{className:'q-type-chip', style:{background:cat.color+'33', color:cat.color}, text:`${cat.icon} ${cat.label}`});
+    num.appendChild(chip);
+  }
+  const typ = QUESTION_TYPES[q.type];
+  if(typ){
+    const chip = el('span',{className:'q-type-chip type-'+q.type, text:`${typ.icon} ${typ.label}`});
+    num.appendChild(chip);
+  }
+
   $('q-text').textContent=q.text;
 
-  // Görsel
-  const wrap=$('q-image-wrap'),img=$('q-image'),cap=$('q-image-caption');
-  wrap.style.display='none';
+  // Görsel — loading state ile
+  const wrap=$('q-image-wrap'),img=$('q-image'),cap=$('q-image-caption'),loader=$('q-image-loader');
   if(q.wikiTitle){
+    // Görseli hemen göster (loading durumunda)
+    wrap.style.display='flex';
+    img.style.display='none';
+    cap.textContent = q.imageCaption || '';
+    if(loader) loader.style.display='flex';
+    img.removeAttribute('src');
     fetchWikiThumb(q.wikiTitle).then(src=>{
-      if(src){ img.src=src; cap.textContent=q.imageCaption||''; wrap.style.display='flex'; }
+      // Soru değişmiş olabilir — sadece hâlâ aynı sorudaysak göster
+      if(State.currentQIdx !== qi) return;
+      if(!src){
+        if(loader){
+          loader.innerHTML='';
+          loader.appendChild(el('span',{text:'🖼️ Görsel bulunamadı'}));
+        }
+        return;
+      }
+      img.onload = ()=>{
+        if(loader) loader.style.display='none';
+        img.style.display='block';
+      };
+      img.onerror = ()=>{
+        if(loader){
+          loader.innerHTML='';
+          loader.appendChild(el('span',{text:'🖼️ Görsel yüklenemedi'}));
+        }
+      };
+      img.src = src;
     });
+  } else {
+    wrap.style.display='none';
   }
 
   // Dot güncelle
@@ -659,72 +1005,254 @@ function renderQuestion(){
     if(i===qi) d.className='q-dot current';
   });
 
-  // Seçenekler
-  const opts=$('q-options');opts.innerHTML='';
-  ['A','B','C','D'].forEach((letter,i)=>{
-    const btn=document.createElement('button');
-    btn.className='option-btn';
-    btn.innerHTML=`<span class="opt-letter">${letter}</span>${q.options[i]}`;
-    btn.addEventListener('click',()=>selectAnswer(i));
-    opts.appendChild(btn);
-  });
+  // Seçenek render'ı tipe göre
+  const opts=$('q-options');
+  opts.className='options-grid type-'+q.type;
+  clearEl(opts);
+  State.multiSelected = new Set();
+  State.dragPairs = {};
+  State.dragSelectedLeft = null;
 
-  // Timer
+  if(q.type==='multi')        renderMulti(q, opts);
+  else if(q.type==='drag')    renderDrag(q, opts);
+  else                        renderSingleOrScenario(q, opts);
+
+  // Timer — her soru tipi için 60 saniye
   clearInterval(State.timerInterval);
-  State.timeLeft=Q_TIME;
+  const tMax = 60;
+  State.timeLeft=tMax;
   const bar=$('timer-bar');bar.style.width='100%';bar.classList.remove('danger');
+  const secEl=$('q-timer-sec');
+  if(secEl) secEl.textContent = Math.ceil(tMax);
   State.questionStartTime=Date.now();
   State.timerInterval=setInterval(()=>{
     State.timeLeft-=0.1;
-    const pct=Math.max(0,(State.timeLeft/Q_TIME)*100);
+    const pct=Math.max(0,(State.timeLeft/tMax)*100);
     bar.style.width=pct+'%';
-    if(pct<30)bar.classList.add('danger');
-    if(State.timeLeft<=0){clearInterval(State.timerInterval);selectAnswer(-1);}
+    if(secEl) secEl.textContent = Math.max(0, Math.ceil(State.timeLeft));
+    if(pct<30){
+      bar.classList.add('danger');
+      $('q-timer-num')?.classList.add('danger');
+    } else {
+      $('q-timer-num')?.classList.remove('danger');
+    }
+    if(State.timeLeft<=0){clearInterval(State.timerInterval);submitAnswer(true);}
   },100);
 }
 
-function selectAnswer(chosen){
+// ── TEK CEVAP / SENARYO ──────────────────────────────────────
+function renderSingleOrScenario(q, opts){
+  ['A','B','C','D'].forEach((letter,i)=>{
+    const btn = el('button', { className: 'option-btn', onclick: () => selectSingle(i) });
+    btn.appendChild(el('span', { className: 'opt-letter', text: letter }));
+    btn.appendChild(document.createTextNode(q.options[i]));
+    opts.appendChild(btn);
+  });
+}
+
+// ── ÇOKLU CEVAP ──────────────────────────────────────────────
+function renderMulti(q, opts){
+  opts.appendChild(el('div', {className:'multi-hint', text:'💡 Birden fazla doğru cevap var — tümünü işaretle.'}));
+  ['A','B','C','D'].forEach((letter,i)=>{
+    const check = el('span', {className:'multi-check', text:'☐'});
+    const btn = el('button', { className: 'option-btn multi', onclick: () => {
+      if(State.multiSelected.has(i)){
+        State.multiSelected.delete(i);
+        btn.classList.remove('selected');
+        check.textContent='☐';
+      } else {
+        State.multiSelected.add(i);
+        btn.classList.add('selected');
+        check.textContent='☑';
+      }
+      $('btn-submit-question').disabled = State.multiSelected.size===0;
+    }});
+    btn.appendChild(el('span', {className:'opt-letter', text: letter}));
+    btn.appendChild(check);
+    btn.appendChild(document.createTextNode(q.options[i]));
+    opts.appendChild(btn);
+  });
+  const submit = el('button', { id:'btn-submit-question', className:'btn-primary submit-q-btn', text:'Cevabı Onayla', disabled:true, onclick:()=>submitAnswer(false) });
+  opts.appendChild(submit);
+}
+
+// ── EŞLEŞTİRME ───────────────────────────────────────────────
+function renderDrag(q, opts){
+  const pairs = q.options.map(o => {
+    const [l,r] = o.split('|').map(s=>s.trim());
+    return {left:l, right:r};
+  });
+  const lefts = pairs.map(p=>p.left);
+  const rights = shuffle(pairs.map(p=>p.right));
+  q._dragPairs = pairs;
+
+  opts.appendChild(el('div', {className:'multi-hint', text:'💡 Soldaki öğeye tıkla → sağdaki eşine tıkla. 4 çift yap.'}));
+
+  const grid = el('div', {className:'drag-grid'});
+  const leftCol = el('div', {className:'drag-col drag-left-col'});
+  const midCol = el('div', {className:'drag-col drag-mid-col', id:'drag-pairs-display'});
+  const rightCol = el('div', {className:'drag-col drag-right-col'});
+
+  function refreshPairsDisplay(){
+    clearEl(midCol);
+    const entries = Object.entries(State.dragPairs);
+    if(!entries.length){
+      midCol.appendChild(el('div', {className:'drag-empty', text:'Henüz eşleşme yok'}));
+      return;
+    }
+    entries.forEach(([l,r])=>{
+      const chip = el('div', {className:'drag-pair-chip'});
+      chip.appendChild(document.createTextNode(`${l} ↔ ${r} `));
+      const x = el('span', {className:'pair-remove', text:'✕', onclick: ()=>{
+        delete State.dragPairs[l];
+        leftCol.querySelector(`button[data-val="${CSS.escape(l)}"]`)?.classList.remove('matched');
+        rightCol.querySelector(`button[data-val="${CSS.escape(r)}"]`)?.classList.remove('matched');
+        refreshPairsDisplay();
+        $('btn-submit-question').disabled = Object.keys(State.dragPairs).length<lefts.length;
+      }});
+      chip.appendChild(x);
+      midCol.appendChild(chip);
+    });
+  }
+
+  lefts.forEach(l=>{
+    const b = el('button', {className:'drag-item drag-left', dataset:{val:l}, text:l, onclick: ()=>{
+      if(b.classList.contains('matched')) return;
+      leftCol.querySelectorAll('.drag-left.selected').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+      State.dragSelectedLeft = l;
+    }});
+    leftCol.appendChild(b);
+  });
+  rights.forEach(r=>{
+    const b = el('button', {className:'drag-item drag-right', dataset:{val:r}, text:r, onclick: ()=>{
+      if(b.classList.contains('matched')) return;
+      if(!State.dragSelectedLeft) return;
+      const l = State.dragSelectedLeft;
+      State.dragPairs[l] = r;
+      const leftBtn = leftCol.querySelector(`button[data-val="${CSS.escape(l)}"]`);
+      if(leftBtn){ leftBtn.classList.remove('selected'); leftBtn.classList.add('matched'); }
+      b.classList.add('matched');
+      State.dragSelectedLeft = null;
+      refreshPairsDisplay();
+      $('btn-submit-question').disabled = Object.keys(State.dragPairs).length<lefts.length;
+    }});
+    rightCol.appendChild(b);
+  });
+
+  grid.appendChild(leftCol);
+  grid.appendChild(midCol);
+  grid.appendChild(rightCol);
+  opts.appendChild(grid);
+  refreshPairsDisplay();
+
+  const submit = el('button', { id:'btn-submit-question', className:'btn-primary submit-q-btn', text:'Cevabı Onayla', disabled:true, onclick:()=>submitAnswer(false) });
+  opts.appendChild(submit);
+}
+
+// Single / scenario: anında değerlendir
+function selectSingle(chosen){
+  submitAnswer(false, chosen);
+}
+
+// Tüm soru tiplerini değerlendiren ortak ana fonksiyon
+//   timedOut=true: süre doldu (chosen yok sayılır)
+//   chosen: single/scenario için seçilen index; multi/drag için null
+function submitAnswer(timedOut, chosen){
   clearInterval(State.timerInterval);
-  const qi=State.currentQIdx,q=State.shuffledQuestions[qi];
+  const qi=State.currentQIdx, q=State.shuffledQuestions[qi];
   const elapsed=(Date.now()-State.questionStartTime)/1000;
-  State.responseTimes.push(Math.min(elapsed,Q_TIME));
-  const isOk=chosen===q.correct;
+  State.responseTimes.push(elapsed);
   State.totalAnswered++;
 
-  // Seçenekleri renklendir
-  $('q-options').querySelectorAll('.option-btn').forEach((btn,i)=>{
-    btn.disabled=true;
-    if(i===q.correct)btn.classList.add('correct-anim');
-    if(i===chosen&&!isOk)btn.classList.add('wrong-anim');
-  });
+  let isOk = false;
+  let userAns = null;
+
+  if(timedOut){
+    isOk = false;
+  } else if(q.type==='single' || q.type==='scenario'){
+    userAns = chosen;
+    isOk = (chosen === q.correct);
+  } else if(q.type==='multi'){
+    const sel = [...State.multiSelected].sort();
+    const correctArr = [...(q.correct||[])].sort();
+    userAns = sel;
+    isOk = (sel.length===correctArr.length && sel.every((v,i)=>v===correctArr[i]));
+  } else if(q.type==='drag'){
+    // q._dragPairs tüm doğru eşleşmeleri içerir
+    userAns = State.dragPairs;
+    isOk = q._dragPairs.every(p => State.dragPairs[p.left]===p.right);
+  }
+
+  // Görsel geri bildirim
+  if(q.type==='single' || q.type==='scenario'){
+    $('q-options').querySelectorAll('.option-btn').forEach((btn,i)=>{
+      btn.disabled=true;
+      if(i===q.correct) btn.classList.add('correct-anim');
+      if(i===userAns && !isOk) btn.classList.add('wrong-anim');
+    });
+  } else if(q.type==='multi'){
+    const correctSet = new Set(q.correct||[]);
+    $('q-options').querySelectorAll('.option-btn').forEach((btn,i)=>{
+      btn.disabled=true;
+      if(correctSet.has(i)) btn.classList.add('correct-anim');
+      else if(State.multiSelected.has(i)) btn.classList.add('wrong-anim');
+    });
+    const sb = $('btn-submit-question'); if(sb) sb.disabled=true;
+  } else if(q.type==='drag'){
+    $('q-options').querySelectorAll('.drag-left, .drag-right').forEach(b=>b.disabled=true);
+    const sb = $('btn-submit-question'); if(sb) sb.disabled=true;
+    // Yanlış eşleşmeleri kırmızıyla işaretle, doğruları yeşille
+    const correctMap = {};
+    q._dragPairs.forEach(p=>correctMap[p.left]=p.right);
+    Object.entries(State.dragPairs).forEach(([l,r])=>{
+      const ok = correctMap[l]===r;
+      const left = $('q-options').querySelector(`.drag-left[data-val="${CSS.escape(l)}"]`);
+      const right = $('q-options').querySelector(`.drag-right[data-val="${CSS.escape(r)}"]`);
+      if(left) left.classList.add(ok?'correct-anim':'wrong-anim');
+      if(right) right.classList.add(ok?'correct-anim':'wrong-anim');
+    });
+  }
+
+  // Bölge / kategori / tip ilerlemesi
+  State.trackAnswer(State.currentRegion.id, q.category, q.type, isOk);
 
   // Nokta güncelle
   const dot=$(`q-dot-${qi}`);
-  if(dot)dot.className='q-dot '+(isOk?'correct':'wrong');
+  if(dot) dot.className='q-dot '+(isOk?'correct':'wrong');
 
-  // Puan
+  // Puan (drag/scenario için daha yüksek)
+  const baseScore = q.type==='single'?100 : q.type==='multi'?140 : q.type==='drag'?160 : 180;
+  const tMax = 60;
   if(isOk){
-    const bonus=Math.round((State.timeLeft/Q_TIME)*50);
-    const earned=100+bonus;
-    State.quizScore+=earned;State.sessionScore+=earned;
-    State.quizCorrect++;State.totalCorrect++;
+    const bonus = Math.round((Math.max(0,State.timeLeft)/tMax)*60);
+    const earned = baseScore + bonus;
+    State.quizScore += earned;
+    State.sessionScore += earned;
+    State.quizCorrect++; State.totalCorrect++;
     SFX.correct();
-  }else{
+  } else {
     SFX.wrong();
-    if(chosen!==-1){$('q-options').classList.add('shake');setTimeout(()=>$('q-options').classList.remove('shake'),400);}
+    if(!timedOut){
+      $('q-options').classList.add('shake');
+      setTimeout(()=>$('q-options').classList.remove('shake'),400);
+    }
   }
 
   $('q-score-live').textContent=State.quizScore.toLocaleString('tr-TR');
 
   // Geri bildirim
   const fb=$('answer-feedback');
-  $('fb-icon').textContent=isOk?'✅':(chosen===-1?'⏰':'❌');
+  $('fb-icon').textContent = isOk ? '✅' : (timedOut ? '⏰' : '❌');
   const ft=$('fb-text');
-  ft.textContent=isOk?'Harika! Doğru cevap!':(chosen===-1?'Süre doldu!':'Yanlış cevap!');
-  ft.style.color=isOk?'var(--accent)':'var(--danger)';
-  $('fb-explanation').textContent=q.explanation;
+  ft.textContent = isOk ? 'Harika! Doğru cevap!' : (timedOut ? 'Süre doldu!' : 'Yanlış cevap!');
+  ft.style.color = isOk ? 'var(--accent)' : 'var(--danger)';
+  $('fb-explanation').textContent = q.explanation || '';
   fb.style.display='flex';
 }
+
+// Geriye uyumluluk için (eski koddan çağrılırsa)
+function selectAnswer(chosen){ selectSingle(chosen); }
 
 function nextQuestion(){
   State.currentQIdx++;
@@ -734,15 +1262,27 @@ function nextQuestion(){
 
 function completeRegion(){
   const region=State.currentRegion;
-  const stars=starsFor(State.quizScore);
-  State.completedRegions[region.id]={score:State.quizScore,stars,correct:State.quizCorrect};
+  const theoreticalMax = State.quizMaxScore || maxScoreFor(State.shuffledQuestions);
+  // Her bölge maksimum 1000 puana ölçekle
+  const REGION_MAX = 1000;
+  const scaledScore = Math.min(REGION_MAX, Math.round(State.quizScore / theoreticalMax * REGION_MAX));
+  const stars = starsFor(scaledScore, REGION_MAX);
+  // Toplam oturum skorunu da ölçeklendir (ham puanı çıkar, ölçekli ekle)
+  State.sessionScore = State.sessionScore - State.quizScore + scaledScore;
+  State.completedRegions[region.id] = { score: scaledScore, maxScore: REGION_MAX, stars, correct: State.quizCorrect };
   State.save();
 
   $('stars-display').textContent=renderStars(stars);
-  $('bc-badge-icon').textContent=region.icon;
+  injectBadgeSvg('bc-badge-icon', region.id, region.icon);
   $('bc-badge-name').textContent=region.badge;
   $('bc-region-name').textContent=region.name;
-  $('bc-score').textContent=State.quizScore;
+  $('bc-score').textContent = scaledScore.toLocaleString('tr-TR');
+  const maxEl = $('bc-max-score');
+  if(maxEl) maxEl.textContent = REGION_MAX.toLocaleString('tr-TR');
+  // Yüzdelik gösterimi
+  const pct = Math.round(scaledScore/REGION_MAX*100);
+  const pctEl = $('bc-pct'); if(pctEl) pctEl.textContent = `%${pct}`;
+  const pctFill = $('bc-pct-fill'); if(pctFill) pctFill.style.width = pct + '%';
   $('bc-fact').textContent=region.funFact;
 
   SFX.badge();confetti();
@@ -759,27 +1299,77 @@ function showFinalScreen(){
   const avg=State.responseTimes.length>0?(State.responseTimes.reduce((a,b)=>a+b,0)/State.responseTimes.length).toFixed(1):0;
   $('fs-time').textContent=`${avg}s`;
 
-  const grid=$('final-badges-grid');grid.innerHTML='';
-  REGIONS.forEach((r,idx)=>{
-    const d=State.completedRegions[r.id];
-    const item=document.createElement('div');
-    item.className='final-badge-item';
-    item.style.animationDelay=`${idx*0.1}s`;
-    item.innerHTML=`<span>${r.icon}</span><span>${r.badge}<br>${d?renderStars(d.stars):''}</span>`;
-    grid.appendChild(item);
-  });
+  const grid=$('final-badges-grid');
+  if(grid){
+    clearEl(grid);
+    REGIONS.forEach((r,idx)=>{
+      const d = State.completedRegions[r.id];
+      const item = el('div', {className:'final-badge-item', style:{animationDelay:`${idx*0.1}s`}});
+      const svgWrap = el('div', {className:'final-badge-svg'});
+      if(typeof REGION_BADGES !== 'undefined' && REGION_BADGES[r.id]){
+        const tpl = new DOMParser().parseFromString(REGION_BADGES[r.id], 'image/svg+xml');
+        const svg = tpl.documentElement;
+        if(svg && svg.nodeName.toLowerCase()==='svg') svgWrap.appendChild(document.importNode(svg, true));
+      } else {
+        svgWrap.textContent = r.icon;
+      }
+      item.appendChild(svgWrap);
+      item.appendChild(el('div', {className:'final-badge-name', text: r.badge}));
+      if(d) item.appendChild(el('div', {className:'final-badge-stars', text: renderStars(d.stars||0)}));
+      grid.appendChild(item);
+    });
+  }
 
   $('cert-name').textContent=State.playerName;
   $('cert-score').textContent=State.sessionScore.toLocaleString('tr-TR');
   $('cert-date').textContent=new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
-  $('cert-badges-row').innerHTML=REGIONS.map(r=>r.icon).join(' ');
+  // Sertifikada toplam başarı yüzdesi (7 bölge × 1000 = 7000 max)
+  const TOTAL_MAX = REGIONS.length * 1000;
+  const overallPct = Math.round(State.sessionScore / TOTAL_MAX * 100);
+  const certPctEl = $('cert-pct'); if(certPctEl) certPctEl.textContent = `%${overallPct}`;
+  const certPctFill = $('cert-pct-fill'); if(certPctFill) certPctFill.style.width = overallPct + '%';
+  // Sertifikadaki rozetler — emoji yerine SVG bölge rozetleri
+  const certRow = $('cert-badges-row');
+  if(certRow){
+    clearEl(certRow);
+    REGIONS.forEach(r=>{
+      const wrap = el('span',{className:'cert-badge-mini', title:r.badge});
+      if(typeof REGION_BADGES !== 'undefined' && REGION_BADGES[r.id]){
+        const tpl = new DOMParser().parseFromString(REGION_BADGES[r.id], 'image/svg+xml');
+        const svg = tpl.documentElement;
+        if(svg && svg.nodeName.toLowerCase()==='svg') wrap.appendChild(document.importNode(svg, true));
+      } else {
+        wrap.textContent = r.icon;
+      }
+      certRow.appendChild(wrap);
+    });
+  }
 
   showScreen('final');
 }
 
 // ── ANA BAŞLATICI ────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
+  // Kayıtlı ilerlemeyi yükle (varsa)
+  State.load();
+
   createParticles();
+
+  // İlerleme modal wiring
+  $('btn-progress-open')?.addEventListener('click',()=>{ SFX.click(); openProgressMatrix(); });
+  $('btn-progress-close')?.addEventListener('click',()=>{ SFX.click(); closeProgressMatrix(); });
+  $('btn-progress-back')?.addEventListener('click',()=>{ SFX.click(); closeProgressMatrix(); });
+  $('pm-scrim')?.addEventListener('click',()=>{ closeProgressMatrix(); });
+  $('btn-progress-reset')?.addEventListener('click',()=>{
+    if(confirm('Tüm ilerlemen silinecek. Emin misin?')){
+      SFX.click();
+      State.reset();
+      State.playerName = State.playerName; // ismi tut
+      State.save();
+      closeProgressMatrix();
+      updateMapUI();
+    }
+  });
 
   $('btn-start').addEventListener('click',()=>{ SFX.click(); showScreen('name'); setTimeout(()=>$('player-name-input').focus(),400); });
   $('btn-about').addEventListener('click',()=>{ SFX.click(); showScreen('about'); });

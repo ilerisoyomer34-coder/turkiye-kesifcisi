@@ -1,0 +1,27 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Acıbadem Okulları">
+  <defs>
+    <linearGradient id="ao-bg" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#a51e2c"/>
+      <stop offset="100%" stop-color="#6e0d18"/>
+    </linearGradient>
+    <linearGradient id="ao-shine" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Dış halka -->
+  <circle cx="100" cy="100" r="96" fill="url(#ao-bg)" stroke="#fff" stroke-width="3"/>
+  <circle cx="100" cy="100" r="96" fill="url(#ao-shine)"/>
+  <circle cx="100" cy="100" r="86" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.6"/>
+  <!-- A harfi -->
+  <g fill="#fff">
+    <polygon points="55,150 75,50 95,50 115,150 102,150 96,120 74,120 68,150"/>
+    <polygon points="78,108 80,98 90,98 92,108" fill="#a51e2c"/>
+  </g>
+  <!-- O harfi -->
+  <g>
+    <circle cx="138" cy="100" r="26" fill="none" stroke="#fff" stroke-width="9"/>
+  </g>
+  <!-- Alt yazı -->
+  <text x="100" y="175" font-family="Poppins,Arial,sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle" letter-spacing="1.5">ACIBADEM OKULLARI</text>
+</svg>
