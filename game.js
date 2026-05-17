@@ -1181,9 +1181,16 @@ function shuffle(arr){
 
 function startQuiz(){
   const r=State.currentRegion;
-  // Soruları karıştır; ardından her sorunun şıklarını da karıştır
-  // (single/scenario: correct index; multi: correct array; drag: pair yapısı — sağ sütun zaten renderDrag içinde shuffle'lanıyor)
-  State.shuffledQuestions = shuffle(r.questions).map(q=>{
+  // Her testte tam 10 soru: 9 rastgele (drag hariç) + 1 drag (eşleştirme) en sonda
+  const QUIZ_SIZE = 10;
+  const allShuffled = shuffle(r.questions);
+  const dragPool    = allShuffled.filter(q => (q.type||'single') === 'drag');
+  const otherPool   = allShuffled.filter(q => (q.type||'single') !== 'drag');
+  const dragQ       = dragPool[0] || null;
+  const others      = otherPool.slice(0, dragQ ? QUIZ_SIZE - 1 : QUIZ_SIZE);
+  const picked      = dragQ ? [...others, dragQ] : others;
+
+  State.shuffledQuestions = picked.map(q=>{
     if(q.type === 'single' || q.type === 'scenario'){
       const correctText = q.options[q.correct];
       const shuffledOpts = shuffle(q.options);
@@ -1810,6 +1817,110 @@ function nextDV(){
   }
 }
 
+
+// ── KÜLTÜREL MİRAS AI SOHBET ─────────────────────────────────
+const AI_SYSTEM_PROMPT = `Sen "Kültürel Miras AI" adlı bir yapay zeka asistanısın. Görevin, yalnızca Türkiye'nin kültürel mirası konusunda yardımcı olmaktır.
+
+Cevaplayabileceğin konular:
+- Türkiye'deki UNESCO Dünya Mirası alanları
+- Anadolu uygarlıkları ve tarihi yapılar
+- Türk geleneksel el sanatları ve zanaatı
+- Yöresel Türk mutfağı ve yemek kültürü
+- Türk halk müziği, dansları ve folklor
+- Türkiye'nin 7 coğrafi bölgesindeki kültürel özellikler
+- Türkiye'deki arkeolojik alanlar ve müzeler
+- Somut olmayan kültürel miras (ebru, Karagöz, sema vb.)
+- Yapay zeka ve kültürel mirasın korunması
+
+Bu konuların dışındaki sorular için şunu söyle:
+"Bu konu yetkim dışında. Yalnızca Türkiye'nin kültürel mirası konularında yardımcı olabilirim. 🏛️"
+
+Türkçe cevap ver. Kısa, bilgilendirici ve samimi ol.`;
+
+let aiMessages = [];
+
+async function sendAIMessage(){
+  const input = $('ai-input');
+  const text = input.value.trim();
+  if(!text) return;
+
+  const apiKey = ($('ai-api-key')?.value || '').trim();
+  if(!apiKey){
+    appendAIMessage('system', '⚠️ Lütfen önce Anthropic API anahtarınızı girin.');
+    return;
+  }
+
+  input.value = '';
+  appendAIMessage('user', text);
+  aiMessages.push({ role: 'user', content: text });
+
+  const sendBtn = $('ai-send-btn');
+  if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = '...'; }
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 500,
+        system: AI_SYSTEM_PROMPT,
+        messages: aiMessages.slice(-10), // son 10 mesaj (context)
+      }),
+    });
+
+    if(!res.ok){
+      const err = await res.json().catch(()=>({error:{message:'Bilinmeyen hata'}}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '(Yanıt alınamadı)';
+    aiMessages.push({ role: 'assistant', content: reply });
+    appendAIMessage('assistant', reply);
+  } catch(e){
+    appendAIMessage('system', `❌ Hata: ${e.message}`);
+  } finally {
+    if(sendBtn){ sendBtn.disabled = false; sendBtn.textContent = 'Gönder'; }
+    $('ai-input')?.focus();
+  }
+}
+
+function appendAIMessage(role, text){
+  const log = $('ai-log');
+  if(!log) return;
+  const div = document.createElement('div');
+  div.className = 'ai-msg ai-msg-' + role;
+  if(role === 'assistant') {
+    const lbl = document.createElement('div');
+    lbl.className = 'ai-msg-label';
+    lbl.textContent = '🏛️ Kültürel Miras AI';
+    div.appendChild(lbl);
+  }
+  const bubble = document.createElement('div');
+  bubble.className = 'ai-bubble';
+  bubble.textContent = text;
+  div.appendChild(bubble);
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function openAIChat(){
+  aiMessages = [];
+  const log = $('ai-log');
+  if(log){
+    log.innerHTML = '';
+    appendAIMessage('assistant', 'Merhaba! Ben Kültürel Miras AI. Türkiye'nin tarihi yapıları, UNESCO mirası, geleneksel el sanatları, yöresel mutfak ve halk kültürü hakkında sorularını yanıtlayabilirim. Ne öğrenmek istersin? 🏛️');
+  }
+  showScreen('ai-chat');
+  setTimeout(()=>$('ai-input')?.focus(), 400);
+}
+
 // ── ANA BAŞLATICI ────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   // Kayıtlı ilerlemeyi yükle (varsa)
@@ -1882,4 +1993,14 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   // Öğretmen paneli
   $('btn-teacher-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
+
+  // Kültürel Miras AI
+  $('btn-open-ai')?.addEventListener('click',()=>{ SFX.click(); openAIChat(); });
+  $('btn-ai-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
+  $('ai-send-btn')?.addEventListener('click',()=>{ sendAIMessage(); });
+  $('ai-input')?.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendAIMessage(); }});
+  // API key localStorage
+  const savedKey = localStorage.getItem('kmAIKey');
+  if(savedKey){ const k=$('ai-api-key'); if(k) k.value=savedKey; }
+  $('ai-api-key')?.addEventListener('change', e=>{ localStorage.setItem('kmAIKey', e.target.value.trim()); });
 });
