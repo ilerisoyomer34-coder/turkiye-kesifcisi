@@ -1,5 +1,5 @@
 /* ============================================================
-   TÜRKİYE'Yİ KEŞFET — OYUN MOTORU v3.0
+   TÜRKİYE\'Yİ KEŞFET — OYUN MOTORU v3.0
    TÜBİTAK 4006 Bilim Fuarı Projesi
    v3.0: Kategori × Bölge × Soru tipi ilerleme + SVG rozetler
    ============================================================ */
@@ -25,7 +25,7 @@ const QUESTION_TYPES = {
 const TYPE_KEYS = ['single','multi','drag','scenario'];
 
 // ── WİKİPEDİA GÖRSEL YÜKLEYICI ───────────────────────────────
-// TR Wikipedia'yı önce dene (Türkiye konuları için daha iyi kapsama), sonra EN
+// TR Wikipedia\'yı önce dene (Türkiye konuları için daha iyi kapsama), sonra EN
 const _wikiCache = {};
 async function fetchWikiThumb(title) {
   if (_wikiCache[title] !== undefined) return _wikiCache[title];
@@ -101,9 +101,9 @@ const REGIONS = [
         wikiTitle: 'Kastamonu',
         imageCaption: 'Kastamonu — geleneksel yazmacılık ve tahta oyma',
         explanation: 'Kastamonu yazmacılığı, ahşap kalıplarla kumaşa elle baskı yapılarak oluşturulan geleneksel bir tekstil sanatıdır. Karadeniz\'in zengin ormanları ahşap el sanatlarının gelişmesine zemin hazırlamıştır.'
-      }
+      },
       {
-        text: 'Trabzon'a özgü geleneksel bakır kalemkârlığında ustalar hangi tekniği kullanır?',
+        text: 'Trabzon\'a özgü geleneksel bakır kalemkârlığında ustalar hangi tekniği kullanır?',
         category: 'craft', type: 'single',
         options: ['Eritilmiş bakırı kalıba döker', 'Bakır levhayı kalemle oyar ve kazar — usta sayısı hızla azalan bu zanaat yok olma tehlikesindedir', 'Bakırı asitle eritir', 'Kalıp baskıyla seri üretir'],
         correct: 1,
@@ -112,7 +112,7 @@ const REGIONS = [
         explanation: 'Bakır kalemkârlığı, usta ellerin bakır levhalar üzerine yaptığı gravür sanatıdır. Sanayi üretimiyle rekabet edemeyen bu zanaat, usta sayısının dramatik düşüşüyle yok olma tehlikesindedir.'
       },
       {
-        text: 'Kastamonu'nun Tosya ilçesine özgü "yazma"yı diğer bölge yazmalarından ayıran özellik nedir?',
+        text: 'Kastamonu\'nun Tosya ilçesine özgü "yazma"yı diğer bölge yazmalarından ayıran özellik nedir?',
         category: 'craft', type: 'single',
         options: ['Yalnızca ipek kullanılır', 'Kalıplar tek tek elle oyulur — bu yüzden her baskı benzersiz, endüstriyel üretimle kaybolmaktadır', 'Makine baskısıyla üretilir', 'Sadece kırmızı renk kullanılır'],
         correct: 1,
@@ -121,13 +121,13 @@ const REGIONS = [
         explanation: 'Tosya yazmacılığında kalıplar tek tek el oymasıyla yapılır; bu nedenle her parça benzersizdir. Makine üretimiyle rekabet edemeyen bu zanaat yok olma tehlikesiyle karşı karşıyadır.'
       },
       {
-        text: 'Sinop'ta geleneksel "lenger" büyük bakır kap hangi toplumsal amaçla kullanılırdı?',
+        text: 'Sinop\'ta geleneksel "lenger" büyük bakır kap hangi toplumsal amaçla kullanılırdı?',
         category: 'craft', type: 'single',
         options: ['Şarap depolamak için', 'İmece kültüründe toplu aş pişirip komşulara dağıtmak için', 'Balık tuzlamak için', 'Yağ üretmek için'],
         correct: 1,
         wikiTitle: 'Sinop',
         imageCaption: 'Sinop lenger geleneği — imece kültürünün simgesi',
-        explanation: 'Lenger, Karadeniz'in imece kültüründe toplu yemek pişirip paylaşmak için kullanılan büyük bakır kaplardır. Bu gelenek ve kapların üretimi büyük ölçüde kaybolmuştur.'
+        explanation: 'Lenger, Karadeniz\'in imece kültüründe toplu yemek pişirip paylaşmak için kullanılan büyük bakır kaplardır. Bu gelenek ve kapların üretimi büyük ölçüde kaybolmuştur.'
       },
     ]
   },
@@ -185,18 +185,18 @@ const REGIONS = [
         wikiTitle: 'Perge',
         imageCaption: 'Perge Antik Kenti — Antalya (Helenistik ve Roma dönemi)',
         explanation: 'Perge (Antalya/Aksu), MÖ 1000\'lere dayanan tarihiyle Helenistik ve Roma dönemlerinde önemli bir kentti. Anıtsal giriş kapısı, sütunlu merkez caddesi ve tiyatrosuyla Akdeniz\'in başlıca antik kent kalıntılarından biridir.'
-      }
+      },
       {
-        text: 'Antalya'nın Elmalı ilçesi kilimlerindeki "kelebek motifi" hangi tarihi geleneği yansıtır?',
+        text: 'Antalya\'nın Elmalı ilçesi kilimlerindeki "kelebek motifi" hangi tarihi geleneği yansıtır?',
         category: 'craft', type: 'single',
         options: ['Osmanlı saray süsleme sanatını', '3000 yıllık Ana tanrıça sembolizmini — yaşayan kültürel bellek olup ustalar azaldıkça yok olmaktadır', 'Selçuklu mimari motiflerini', 'Bizans döneminden kilise mozaiklerini'],
         correct: 1,
         wikiTitle: 'Antalya',
         imageCaption: 'Elmalı kilimi kelebek motifi — Anadolu Ana tanrıça mirası',
-        explanation: 'Elmalı kilimlerindeki kelebek desenleri, Ana tanrıça kültünün Anadolu'daki 3000 yıllık izini taşır. Bu motifler yaşayan bir kültürel bellek olup ustalar azaldıkça bu sembolik dil de yok olma tehlikesiyle karşı karşıyadır.'
+        explanation: 'Elmalı kilimlerindeki kelebek desenleri, Ana tanrıça kültünün Anadolu\'daki 3000 yıllık izini taşır. Bu motifler yaşayan bir kültürel bellek olup ustalar azaldıkça bu sembolik dil de yok olma tehlikesiyle karşı karşıyadır.'
       },
       {
-        text: 'Alanya'nın geleneksel "kalafatçıları" hangi teknikle ahşap tekne kaçaklarını önlerdi?',
+        text: 'Alanya\'nın geleneksel "kalafatçıları" hangi teknikle ahşap tekne kaçaklarını önlerdi?',
         category: 'craft', type: 'single',
         options: ['Modern plastik dolgu ile', 'Pamuk, katran ve zeytinyağını elle tahta aralıklarına sıkıştırarak — fiberglasa geçişle artık neredeyse yok olan bir zanaat', 'Silikon kullanarak', 'Çelik perçinlerle'],
         correct: 1,
@@ -205,7 +205,7 @@ const REGIONS = [
         explanation: 'Kalafatçılık, pamuk-katran-zeytinyağı karışımını elle tahta aralıklarına sıkıştırma sanatıdır. Fiberglasa geçişle bu zanaat neredeyse tamamen yok olmuştur.'
       },
       {
-        text: 'Mersin'de geleneksel "narlıdere ipliği" neden kapı önüne asılır?',
+        text: 'Mersin\'de geleneksel "narlıdere ipliği" neden kapı önüne asılır?',
         category: 'craft', type: 'single',
         options: ['Balık ağı yapmak için', 'Nazardan korunmak ve mutluluğu evde tutmak için — modern yaşamla büyük ölçüde kaybolan bir gelenek', 'Çadır kurmak için', 'Halatlar dokumak için'],
         correct: 1,
@@ -269,9 +269,9 @@ const REGIONS = [
         wikiTitle: 'Derinkuyu underground city',
         imageCaption: 'Derinkuyu Yeraltı Şehri — Kapadokya (8 kat derinliğinde)',
         explanation: 'Kapadokya\'daki Derinkuyu ve Kaymaklı yeraltı şehirleri, Bizans döneminde Arap akınları sırasında binlerce kişiyi barındıran çok katlı savunma sığınaklarıdır. Derinkuyu 8 kat aşağıya kadar iner ve 20.000 kişiyi barındırabilirdi.'
-      }
+      },
       {
-        text: 'Konya'nın Karapınar'ında "alacaören" yağmur duası geleneği neden kültürel miras sayılır?',
+        text: 'Konya\'nın Karapınar\'ında "alacaören" yağmur duası geleneği neden kültürel miras sayılır?',
         category: 'music', type: 'single',
         options: ['Yalnızca eğlence amaçlıdır', 'İslam öncesi ve sonrası öğeleri bir arada taşıyan, doğa-toplum ilişkisini sembolize eden ritüel olduğu için', 'Roma döneminden kaldığı kanıtlandı', 'Çiftçilere tarım bilgisi öğrettiği için'],
         correct: 1,
@@ -289,7 +289,7 @@ const REGIONS = [
         explanation: 'Hayvanların en alt kata yerleştirilmesi tesadüf değildir; vücut ısısı konveksiyonla üst katlara taşınırdı. Bu, antik çağlarda pasif ısıtma sisteminin en erken örneklerinden biridir.'
       },
       {
-        text: 'Kırşehir'deki "Ahilik" teşkilatı modern hangi kurumların tarihsel atası sayılır?',
+        text: 'Kırşehir\'deki "Ahilik" teşkilatı modern hangi kurumların tarihsel atası sayılır?',
         category: 'unesco', type: 'single',
         options: ['Modern futbol kulübü', 'Ticaret birliği, mesleki etik ve sosyal dayanışma örgütü — modern esnaf ve ticaret odalarının atası', 'Osmanlı askeri düzeni', 'İlk posta teşkilatı'],
         correct: 1,
@@ -353,9 +353,9 @@ const REGIONS = [
         wikiTitle: 'Troy',
         imageCaption: 'Troya (Truva) surları — Çanakkale (UNESCO, 1998)',
         explanation: 'Troya, Çanakkale\'nin Tevfikiye köyündedir. MÖ 3000\'den MS 400\'e kadar 9 farklı katmanda iskân edilmiş, Homeros\'un İlyada destanına konu olan efsanevi kenttir. Truva Atı\'nın efsanesiyle ünlüdür. 1998\'de UNESCO listesine girmiştir.'
-      }
+      },
       {
-        text: 'İzmir Çeşme'ye özgü "sakız dövmesi" geleneği kaç yıllık bir kültürel sürekliliği temsil eder?',
+        text: 'İzmir Çeşme\'ye özgü "sakız dövmesi" geleneği kaç yıllık bir kültürel sürekliliği temsil eder?',
         category: 'craft', type: 'single',
         options: ['100 yıl', '500 yıl', '2500 yıl — sakız (mastika) reçinesi hasadı Antik Yunan döneminden bu yana sürmektedir', '50 yıl'],
         correct: 2,
@@ -373,13 +373,13 @@ const REGIONS = [
         explanation: 'Milas halısı, yumuşak sarımsı-pembe tonları ve koç boynuzu sembolizmiyle tanınan özgün Ege halısıdır. Bitkisel boyalar ve özgün motif repertuarı onu diğer Türk halılarından ayırır.'
       },
       {
-        text: 'Bergama'nın geleneksel "boynuz tarakçılığı" neden kaybolmaktadır?',
+        text: 'Bergama\'nın geleneksel "boynuz tarakçılığı" neden kaybolmaktadır?',
         category: 'craft', type: 'single',
         options: ['Plastik tarakların el yapımı boynuz tarakların pazarını yok etmesi nedeniyle', 'Çok pahalı olduğundan', 'Yasalarla yasaklandığından', 'Hammadde kalmadığından'],
         correct: 0,
         wikiTitle: 'Bergama',
         imageCaption: 'Bergama boynuz tarakçılığı — yok olma tehlikesindeki zanaat',
-        explanation: 'Bergama'nın geleneksel boynuz tarakçılığı, hayvan boynuzlarının işlenerek tarak yapılması sanatıdır. Ucuz plastik tarakların piyasayı ele geçirmesiyle usta sayısı dramatik biçimde azalmıştır.'
+        explanation: 'Bergama\'nın geleneksel boynuz tarakçılığı, hayvan boynuzlarının işlenerek tarak yapılması sanatıdır. Ucuz plastik tarakların piyasayı ele geçirmesiyle usta sayısı dramatik biçimde azalmıştır.'
       },
     ]
   },
@@ -437,33 +437,33 @@ const REGIONS = [
         wikiTitle: 'Grand Bazaar, Istanbul',
         imageCaption: 'Kapalıçarşı — İstanbul (1461, dünyanın en eski kapalı çarşısı)',
         explanation: 'Kapalıçarşı (1461, Fatih Sultan Mehmet), ticaret, zanaat ve lonca sisteminin merkeziydi. 61 kapalı cadde ve 4000\'den fazla dükkanıyla dünyanın bilinen en eski ve en büyük kapalı çarşılarından biridir.'
-      }
+      },
       {
-        text: 'Edirne'de 650 yılı aşkın süredir düzenlenen Kırkpınar Yağlı Güreşi'nin kültürel önemi nedir?',
+        text: 'Edirne\'de 650 yılı aşkın süredir düzenlenen Kırkpınar Yağlı Güreşi\'nin kültürel önemi nedir?',
         category: 'music', type: 'single',
         options: ['Yalnızca bir spor etkinliğidir', 'UNESCO tarafından tescillenen, spor-müzik-ritüelin iç içe geçtiği dünyanın en eski spor festivali', 'Son 50 yılda başlatılmıştır', 'Askeri eğitim biçimidir'],
         correct: 1,
         wikiTitle: 'Oil wrestling',
-        imageCaption: 'Kırkpınar Yağlı Güreşi — Edirne, 1362'den beri (UNESCO 2010)',
-        explanation: 'Kırkpınar, 1362'den beri kesintisiz düzenlenen dünyanın en eski spor etkinliklerinden biridir. Davul-zurna müziği, ağa geleneği ve güreş ritüeli bir arada 2010'da UNESCO listesine alındı.'
+        imageCaption: 'Kırkpınar Yağlı Güreşi — Edirne, 1362\'den beri (UNESCO 2010)',
+        explanation: 'Kırkpınar, 1362\'den beri kesintisiz düzenlenen dünyanın en eski spor etkinliklerinden biridir. Davul-zurna müziği, ağa geleneği ve güreş ritüeli bir arada 2010\'da UNESCO listesine alındı.'
       },
       {
-        text: 'İstanbul'a özgü "Ebru" sanatı nasıl uygulanır?',
+        text: 'İstanbul\'a özgü "Ebru" sanatı nasıl uygulanır?',
         category: 'craft', type: 'single',
         options: ['Hat yazısı kumaşa nakşedilir', 'Kitre kıvamındaki su yüzeyine özel boyalar fırlatılıp çeşitli aletlerle şekillendirilir — 16. yüzyıldan beri süregelen Osmanlı-Türk sanatı (UNESCO 2014)', 'Tezhip altın yaldız kâğıda basılır', 'Minyatür fırça tekniğiyle uygulanır'],
         correct: 1,
         wikiTitle: 'Ebru (marbling)',
         imageCaption: 'Ebru sanatı — su yüzeyinde dans eden boyalar (UNESCO 2014)',
-        explanation: 'Ebru, kitre kıvamındaki su yüzeyine özel boyalar fırlatılıp şekillendirilmesinin ardından kâğıda aktarılmasıyla oluşturulur. 16. yüzyıldan beri sürmekte olup 2014'te UNESCO listesine alınmıştır.'
+        explanation: 'Ebru, kitre kıvamındaki su yüzeyine özel boyalar fırlatılıp şekillendirilmesinin ardından kâğıda aktarılmasıyla oluşturulur. 16. yüzyıldan beri sürmekte olup 2014\'te UNESCO listesine alınmıştır.'
       },
       {
-        text: 'Bursa'daki geleneksel "tellak" zanaatı neden kültürel miras kapsamındadır?',
+        text: 'Bursa\'daki geleneksel "tellak" zanaatı neden kültürel miras kapsamındadır?',
         category: 'craft', type: 'single',
         options: ['Tellaklar modern masaj teknisyenleridir', 'Yüzyıllık hamam kültürünü yaşatması, sosyal eşitlik ritüelini taşıması ve nesli tükenmekte olan bir zanaat olması nedeniyle', 'Devlet tarafından desteklendiğinden', 'Yalnızca turistler için yapıldığından'],
         correct: 1,
         wikiTitle: 'Turkish bath',
         imageCaption: 'Türk hamamı tellak geleneği — sosyal ritüel (UNESCO 2016)',
-        explanation: 'Tellak, geleneksel Türk hamamlarında köse-kese hizmeti veren, bu zanaatı ustadan öğrenen kişidir. Hamam kültürü 2016'da UNESCO listesine alındı; ancak geleneksel eğitim alan usta sayısı giderek azalmaktadır.'
+        explanation: 'Tellak, geleneksel Türk hamamlarında köse-kese hizmeti veren, bu zanaatı ustadan öğrenen kişidir. Hamam kültürü 2016\'da UNESCO listesine alındı; ancak geleneksel eğitim alan usta sayısı giderek azalmaktadır.'
       },
     ]
   },
@@ -521,18 +521,18 @@ const REGIONS = [
         wikiTitle: 'Van Fortress',
         imageCaption: 'Van Kalesi — Urartu dönemi (MÖ 9. yüzyıl)',
         explanation: 'Van Kalesi, MÖ 9. yüzyılda Urartu Krallığı\'nın merkezi olan Tuşpa şehrinin kalıntısıdır. Sarp kayalık üzerindeki surlar ve kaya yazıtları Urartu dilinin ve medeniyetinin en önemli belgelerinden biridir.'
-      }
+      },
       {
         text: 'Erzurum "Oltu taşı" neden başka bölgelerde üretilemeyen özgün bir zanaat malzemesidir?',
         category: 'craft', type: 'single',
-        options: ['Obsidyen — tüm Doğu Anadolu'da bulunur', 'Lignit kökenli "jet" taşı — yalnızca Erzurum Oltu ilçesinin belirli yataklarında bulunur', 'Bazalt — tüm platodan çıkarılır', 'Mermer — Van dağlarından getirilir'],
+        options: ['Obsidyen — tüm Doğu Anadolu\'da bulunur', 'Lignit kökenli "jet" taşı — yalnızca Erzurum Oltu ilçesinin belirli yataklarında bulunur', 'Bazalt — tüm platodan çıkarılır', 'Mermer — Van dağlarından getirilir'],
         correct: 1,
         wikiTitle: 'Oltu stone',
-        imageCaption: 'Oltu taşı — Erzurum'un siyah, parlak zanaatı',
-        explanation: 'Oltu taşı, lignit kökenli organik bir taş türü olan "jet"tir. Yalnızca Erzurum'un Oltu ilçesine özgü yataklarda bulunur. El testeresi ve cilalama ile yapılan oyma, kuşaktan kuşağa aktarılan nadir bir zanaat olarak yaşatılmaktadır.'
+        imageCaption: 'Oltu taşı — Erzurum\'un siyah, parlak zanaatı',
+        explanation: 'Oltu taşı, lignit kökenli organik bir taş türü olan "jet"tir. Yalnızca Erzurum\'un Oltu ilçesine özgü yataklarda bulunur. El testeresi ve cilalama ile yapılan oyma, kuşaktan kuşağa aktarılan nadir bir zanaat olarak yaşatılmaktadır.'
       },
       {
-        text: 'Malatya'da yüzyıllardır süregelen "kayısı kurutma" geleneğinin kültürel önemi nedir?',
+        text: 'Malatya\'da yüzyıllardır süregelen "kayısı kurutma" geleneğinin kültürel önemi nedir?',
         category: 'cuisine', type: 'single',
         options: ['Yalnızca ekonomik değer taşır', 'Güneş, rüzgar ve el işçiliğini harmanlayan bilgi sistemi — toprağa, iklime ve kültüre özgü bir gastronomik pratik', 'Fabrika üretimine alternatiftir', 'UNESCO Mirası olarak tescillenmiştir'],
         correct: 1,
@@ -547,7 +547,7 @@ const REGIONS = [
         correct: 1,
         wikiTitle: 'Urartu',
         imageCaption: 'Urartu kaya oyma sanatı — Van çevresi, MÖ 9.-6. yüzyıl',
-        explanation: 'Urartu uygarlığı (MÖ 9.-6. yüzyıl), doğu Anadolu'nun sert kayaları üzerine olağanüstü kazıma ve oyma işleri bırakmıştır. Van Kalesi'ndeki Urartu yazıtları bu sanatın en çarpıcı örnekleridir.'
+        explanation: 'Urartu uygarlığı (MÖ 9.-6. yüzyıl), doğu Anadolu\'nun sert kayaları üzerine olağanüstü kazıma ve oyma işleri bırakmıştır. Van Kalesi\'ndeki Urartu yazıtları bu sanatın en çarpıcı örnekleridir.'
       },
     ]
   },
@@ -605,18 +605,18 @@ const REGIONS = [
         wikiTitle: 'Balıklıgöl',
         imageCaption: 'Balıklıgöl — Şanlıurfa; "Peygamberler Şehri"nin kutsal mekânı',
         explanation: 'Balıklıgöl, İbrahimî geleneğe göre Hz. İbrahim\'in Nemrut Kral tarafından ateşe atıldığı ve Allah\'ın ateşi suya, odunları balığa çevirdiğine inanılan kutsal bir mekândır. Bu inanç Şanlıurfa\'ya "Peygamberler Şehri" unvanını kazandırmıştır.'
-      }
+      },
       {
-        text: 'Gaziantep'in UNESCO Gastronomi Şehri unvanının temelinde ne yatmaktadır?',
+        text: 'Gaziantep\'in UNESCO Gastronomi Şehri unvanının temelinde ne yatmaktadır?',
         category: 'cuisine', type: 'single',
         options: ['Fabrika üretimiyle standardize edilmiş baklava', 'Elle açılan ince yufka, el seçimi Antep fıstığı ve ustanın sezgisel pişirme bilgisi — sözlü aktarımla yaşayan gizli bilgi', 'Hızlı servis mutfağının gelişimi', 'Uluslararası gıda ihracatı'],
         correct: 1,
         wikiTitle: 'Gaziantep',
         imageCaption: 'Antep baklavası ustası — UNESCO 2015 Gastronomi Şehri',
-        explanation: 'Gaziantep'in UNESCO Yaratıcı Şehirler Ağı Gastronomi unvanının temelinde elle açılan yufka katmanları, özenle seçilen fıstık ve ustanın kuşaktan kuşağa aktarılan sezgisel bilgisi yatar.'
+        explanation: 'Gaziantep\'in UNESCO Yaratıcı Şehirler Ağı Gastronomi unvanının temelinde elle açılan yufka katmanları, özenle seçilen fıstık ve ustanın kuşaktan kuşağa aktarılan sezgisel bilgisi yatar.'
       },
       {
-        text: 'Mardin'de "telkari" (gümüş tel işçiliği) hangi teknikle uygulanır?',
+        text: 'Mardin\'de "telkari" (gümüş tel işçiliği) hangi teknikle uygulanır?',
         category: 'craft', type: 'single',
         options: ['Eritilmiş gümüş kalıba dökülür', '0.3-0.5 mm gümüş teller elle kıvrılıp lehimlenerek dantel gibi örülür', 'Gümüş levhalar preslenerek şekil verilir', 'Seramik kalıba gümüş kaplanır'],
         correct: 1,
@@ -627,11 +627,11 @@ const REGIONS = [
       {
         text: 'Şanlıurfa Balıklıgöl çevresindeki Hz. İbrahim Mağarası neden "yaşayan kültürel miras" sayılır?',
         category: 'unesco', type: 'single',
-        options: ['Göbekli Tepe tünelleri olduğu için', 'Hz. İbrahim'in doğup büyüdüğü yere atfedilen kutsal alan — dini, kültürel ve tarihi katmanlarıyla yaşayan bir miras', 'Harran Üniversitesi kalıntıları olduğu için', 'Nemrut'un yan mağaraları olduğu için'],
+        options: ['Göbekli Tepe tünelleri olduğu için', 'Hz. İbrahim\'in doğup büyüdüğü yere atfedilen kutsal alan — dini, kültürel ve tarihi katmanlarıyla yaşayan bir miras', 'Harran Üniversitesi kalıntıları olduğu için', 'Nemrut\'un yan mağaraları olduğu için'],
         correct: 1,
         wikiTitle: 'Sanliurfa',
         imageCaption: 'Hz. İbrahim Mağarası — Şanlıurfa, yaşayan kültürel miras',
-        explanation: 'Şanlıurfa'daki Hz. İbrahim Mağarası, İslam inancına göre Hz. İbrahim'in doğduğu yere yakın kutsal bir mekândır. Balıklıgöl'ün yanında yer alan bu alan, hem dini hem kültürel hem tarihi katmanlarıyla yaşayan bir miras alanıdır.'
+        explanation: 'Şanlıurfa\'daki Hz. İbrahim Mağarası, İslam inancına göre Hz. İbrahim\'in doğduğu yere yakın kutsal bir mekândır. Balıklıgöl\'ün yanında yer alan bu alan, hem dini hem kültürel hem tarihi katmanlarıyla yaşayan bir miras alanıdır.'
       },
     ]
   }
@@ -692,7 +692,7 @@ const RARITY_LABELS = { common:'Yaygın', rare:'Nadir', epic:'Epik', legendary:'
 // ── DİJİTAL VATANDAŞLIK SENARYOLARI ─────────────────────────
 const DV_SCENARIOS = [
   {
-    text: 'Sosyal medyada Türkiye'nin tarihi bir yapısına ait yanlış bilgi paylaşan bir gönderi gördün. Ne yaparsın?',
+    text: 'Sosyal medyada Türkiye\'nin tarihi bir yapısına ait yanlış bilgi paylaşan bir gönderi gördün. Ne yaparsın?',
     options: [
       'Görmezden gel, önemli değil',
       'Doğru bilgiyi kaynağıyla (Wikipedia, müze sitesi) yorum olarak paylaş',
@@ -725,7 +725,7 @@ const DV_SCENARIOS = [
     explanation: 'Dijital ortamdaki kültürel eserlerin de telif hakları vardır; kullanmadan önce lisansı kontrol etmek gerekir.'
   },
   {
-    text: 'Türkiye'ye özgü bir geleneksel yemeği yabancı bir site "Yunan mutfağı" olarak tanıtıyor. Ne yaparsın?',
+    text: 'Türkiye\'ye özgü bir geleneksel yemeği yabancı bir site "Yunan mutfağı" olarak tanıtıyor. Ne yaparsın?',
     options: [
       'Bir şey yapamam, uluslararası siteler böyledir',
       'Sitenin iletişim formuna tarihsel kaynaklar göstererek kibar bir düzeltme mesajı yazarsın',
@@ -1086,7 +1086,7 @@ function injectBadgeSvg(containerId, regionId, fallbackEmoji){
   if(!c) return;
   clearEl(c);
   if(typeof REGION_BADGES !== 'undefined' && REGION_BADGES[regionId]){
-    // SVG'yi parse edip ekle (innerHTML kullanmadan, DOMParser ile)
+    // SVG\'yi parse edip ekle (innerHTML kullanmadan, DOMParser ile)
     const tpl = new DOMParser().parseFromString(REGION_BADGES[regionId], 'image/svg+xml');
     const svg = tpl.documentElement;
     if(svg && svg.nodeName.toLowerCase()==='svg'){
@@ -1202,7 +1202,7 @@ function startQuiz(){
       const newCorrect = correctTexts.map(t => shuffledOpts.indexOf(t)).sort((a,b)=>a-b);
       return {...q, options: shuffledOpts, correct: newCorrect};
     }
-    // drag: renderDrag içinde sağ sütun shuffle'lanıyor; sol/değer çiftleri korunur
+    // drag: renderDrag içinde sağ sütun shuffle\'lanıyor; sol/değer çiftleri korunur
     return {...q};
   });
   State.currentQIdx=0;State.quizScore=0;State.quizCorrect=0;
@@ -1301,7 +1301,7 @@ function renderQuestion(){
     if(i===qi) d.className='q-dot current';
   });
 
-  // Seçenek render'ı tipe göre
+  // Seçenek render\'ı tipe göre
   const opts=$('q-options');
   opts.className='options-grid type-'+q.type;
   clearEl(opts);
@@ -1822,9 +1822,9 @@ function nextDV(){
 const AI_SYSTEM_PROMPT = `Sen "Kültürel Miras AI" adlı bir yapay zeka asistanısın. Bu oyunun kapsadığı tüm konularda yardımcı olabilirsin.
 
 Cevaplayabileceğin konular (oyunun kapsamı):
-- Türkiye'deki UNESCO Dünya Mirası alanları ve tarihi yapılar
+- Türkiye\'deki UNESCO Dünya Mirası alanları ve tarihi yapılar
 - Anadolu uygarlıkları (Hitit, Urartu, Likya, Kommagene vb.)
-- Türkiye'nin 7 coğrafi bölgesindeki kültürel özellikler
+- Türkiye\'nin 7 coğrafi bölgesindeki kültürel özellikler
 - Geleneksel Türk el sanatları ve zanaatları
 - Yöresel Türk mutfağı ve yemek kültürü
 - Türk halk müziği, dansları ve folklor
@@ -1833,7 +1833,7 @@ Cevaplayabileceğin konular (oyunun kapsamı):
 - Yapay zeka ve teknolojinin kültürel mirası korumadaki rolü
 
 Bunların DIŞINDA kalan konular için (spor, siyaset, matematik, güncel haberler vb.) yalnızca şunu söyle:
-"Bu konu yetkim dışında. Ben yalnızca Türkiye'nin unutulmaya yüz tutmuş kültürel mirası hakkında bilgi verebilirim. 🏛️"
+"Bu konu yetkim dışında. Ben yalnızca Türkiye\'nin unutulmaya yüz tutmuş kültürel mirası hakkında bilgi verebilirim. 🏛️"
 
 Türkçe cevap ver. Kısa, bilgilendirici ve samimi ol.`;
 
@@ -1915,7 +1915,7 @@ function openAIChat(){
   const log = $('ai-log');
   if(log){
     log.innerHTML = '';
-    appendAIMessage('assistant', "Merhaba! Ben Kültürel Miras AI. Türkiye'nin UNESCO mirası, tarihi yapıları, geleneksel el sanatları, unutulmaya yüz tutmuş zanaatlar ve yöresel kültürü hakkında sorularına cevap verebilirim. Ne öğrenmek istersin? 🏛️");
+    appendAIMessage('assistant', "Merhaba! Ben Kültürel Miras AI. Türkiye\'nin UNESCO mirası, tarihi yapıları, geleneksel el sanatları, unutulmaya yüz tutmuş zanaatlar ve yöresel kültürü hakkında sorularına cevap verebilirim. Ne öğrenmek istersin? 🏛️");
   }
   showScreen('ai-chat');
   setTimeout(()=>$('ai-input')?.focus(), 400);

@@ -281,7 +281,7 @@ const EXTENDED_QUESTIONS = {
   ]
 };
 
-// Globale yayımla (game.js'den önce yüklenir)
+// Globale yayımla (game.js\'den önce yüklenir)
 if (typeof window !== 'undefined') window.EXTENDED_QUESTIONS = EXTENDED_QUESTIONS;
 
 // ── YAPAY ZEKA VE TEKNOLOJİ SORULARI (10 soru, 7 bölge) ──────
@@ -310,22 +310,22 @@ const AI_QUESTIONS = {
     {
       text: 'Makine öğrenmesi (ML) ile geleneksel programlama arasındaki temel fark nedir?',
       category: 'ai', type: 'single',
-      options: ['ML çok daha pahalıdır', 'Geleneksel programlamada kurallar insan tarafından yazılır; ML'de sistem veriden kendi kurallarını öğrenir', 'ML yalnızca oyun geliştirmede kullanılır', 'İkisi aynı şeydir, sadece isim farkı vardır'],
+      options: ['ML çok daha pahalıdır', 'Geleneksel programlamada kurallar insan tarafından yazılır; ML\'de sistem veriden kendi kurallarını öğrenir', 'ML yalnızca oyun geliştirmede kullanılır', 'İkisi aynı şeydir, sadece isim farkı vardır'],
       correct: 1,
       wikiTitle: 'Machine learning',
       imageCaption: 'Makine öğrenmesi — veriden kural öğrenen sistemler',
-      explanation: 'Geleneksel programlamada programcı her kuralı manuel yazar. Makine öğrenmesinde ise sistem büyük veri setlerini analiz ederek kendi kalıplarını ve kurallarını otomatik olarak öğrenir — bu esneklik YZ'yi güçlü kılan temel özelliktir.'
+      explanation: 'Geleneksel programlamada programcı her kuralı manuel yazar. Makine öğrenmesinde ise sistem büyük veri setlerini analiz ederek kendi kalıplarını ve kurallarını otomatik olarak öğrenir — bu esneklik YZ\'yi güçlü kılan temel özelliktir.'
     }
   ],
   'ic-anadolu': [
     {
-      text: 'YZ görüntü tanıma teknolojisi Türkiye'deki arkeolojik çalışmalarda nasıl kullanılmaktadır?',
+      text: 'YZ görüntü tanıma teknolojisi Türkiye\'deki arkeolojik çalışmalarda nasıl kullanılmaktadır?',
       category: 'ai', type: 'single',
       options: ['Yalnızca müze bilet satışında', 'Uydu ve drone görüntülerini analiz ederek henüz kazılmamış arkeolojik alanları tespit etmek için', 'Turistlerin fotoğraflarını düzenlemek için', 'Antika alım-satımını kolaylaştırmak için'],
       correct: 1,
       wikiTitle: 'Archaeological prospection',
       imageCaption: 'YZ ile arkeolojik alan keşfi — Anadolu uydu görüntü analizi',
-      explanation: 'YZ görüntü işleme algoritmaları, uydu ve drone fotoğraflarındaki toprak rengi, yoğunluk veya yapısal kalıpları analiz ederek yerleşim, yol veya yapı kalıntısı barındırabilecek alanları işaret edebilmektedir. Bu teknik Anadolu'da kazı öncesi araştırmalarda kullanılmaktadır.'
+      explanation: 'YZ görüntü işleme algoritmaları, uydu ve drone fotoğraflarındaki toprak rengi, yoğunluk veya yapısal kalıpları analiz ederek yerleşim, yol veya yapı kalıntısı barındırabilecek alanları işaret edebilmektedir. Bu teknik Anadolu\'da kazı öncesi araştırmalarda kullanılmaktadır.'
     },
     {
       text: '"Derin öğrenme" (deep learning) nedir?',
@@ -359,7 +359,7 @@ const AI_QUESTIONS = {
   ],
   'marmara': [
     {
-      text: 'Türkiye'de YZ alanındaki ulusal strateji belgesi ilk olarak hangi yılda yayımlandı?',
+      text: 'Türkiye\'de YZ alanındaki ulusal strateji belgesi ilk olarak hangi yılda yayımlandı?',
       category: 'ai', type: 'single',
       options: ['2010', '2021 — Türkiye Yapay Zeka Stratejisi (2021-2025)', '2005', '2018'],
       correct: 1,
@@ -368,7 +368,7 @@ const AI_QUESTIONS = {
       explanation: 'Türkiye, ulusal YZ stratejisini 2021 yılında yayımladı. "Türkiye Yapay Zeka Stratejisi 2021-2025" belgesi, veri ekonomisi, YZ insan kaynağı, altyapı ve etik alanlarında hedefler belirlemektedir.'
     },
     {
-      text: 'Büyük Kapalıçarşı'nın (Kapalıçarşı, İstanbul) dijital envanter çalışmalarında hangi YZ uygulaması kullanılabilir?',
+      text: 'Büyük Kapalıçarşı\'nın (Kapalıçarşı, İstanbul) dijital envanter çalışmalarında hangi YZ uygulaması kullanılabilir?',
       category: 'ai', type: 'single',
       options: ['Yalnızca barkod tarama', 'Nesne tanıma ve görsel arama — tarihi eserlerin fotoğrafından otomatik kataloglama ve benzer eser tespiti', 'Yalnızca QR kodlama', 'Satış takip yazılımı'],
       correct: 1,
@@ -396,12 +396,12 @@ const AI_QUESTIONS = {
       correct: 1,
       wikiTitle: 'Göbekli Tepe',
       imageCaption: 'YZ ile arkeolojik parça eşleştirme — Göbekli Tepe',
-      explanation: 'Göbekli Tepe'de YZ görüntü işleme algoritmaları, on binlerce taş parçasını karşılaştırarak uyumluluk analizi yapmakta ve parçaları birleştirerek taş kabartmaları dijital ortamda yeniden oluşturmaktadır. Bu işlem elle yapılmasının on yıllar alacağı eşleştirmeleri saatler içinde gerçekleştirir.'
+      explanation: 'Göbekli Tepe\'de YZ görüntü işleme algoritmaları, on binlerce taş parçasını karşılaştırarak uyumluluk analizi yapmakta ve parçaları birleştirerek taş kabartmaları dijital ortamda yeniden oluşturmaktadır. Bu işlem elle yapılmasının on yıllar alacağı eşleştirmeleri saatler içinde gerçekleştirir.'
     }
   ]
 };
 
-// AI_QUESTIONS varsa REGIONS'a ekle
+// AI_QUESTIONS varsa REGIONS\'a ekle
 (function addAIQuestions(){
   if(typeof REGIONS === 'undefined') return;
   REGIONS.forEach(r=>{
@@ -929,7 +929,7 @@ const FORGOTTEN_QUESTIONS = {
 
 };
 
-// FORGOTTEN_QUESTIONS varsa REGIONS'a ekle
+// FORGOTTEN_QUESTIONS varsa REGIONS\'a ekle
 (function addForgottenQuestions(){
   if(typeof REGIONS === 'undefined') return;
   REGIONS.forEach(r=>{
