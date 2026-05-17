@@ -16,7 +16,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
   <div id="game-container">
@@ -75,6 +75,11 @@
       </header>
 
       <button id="btn-progress-open" class="btn-secondary btn-progress-open" type="button" aria-label="İlerleme detaylarını aç">🏆 İlerleme Detayları</button>
+      <div class="extra-btns-bar">
+        <button class="extra-btn" id="btn-open-cards">🃏 Kartlarım</button>
+        <button class="extra-btn" id="btn-open-digital">🖥️ Dijital Vatandaşlık</button>
+        <button class="extra-btn" id="btn-open-teacher">📊 Öğretmen Paneli</button>
+      </div>
 
       <div class="map-wrapper">
         <h2 class="map-title">Keşfetmek istediğin bölgeyi seç!</h2>
@@ -236,6 +241,7 @@
           <div class="bc-pct-label">Başarın: <strong id="bc-pct">%0</strong></div>
         </div>
         <div class="complete-fact" id="bc-fact"></div>
+        <div id="bc-cards-earned"></div>
         <div class="complete-buttons">
           <button class="btn-primary" id="btn-continue-map">Haritaya Dön</button>
         </div>
@@ -353,6 +359,88 @@
       </div>
     </div>
 
+
+    <!-- EKRAN: KARAKTER SEÇİMİ -->
+    <div id="screen-character" class="screen">
+      <div class="intro-content" style="max-width:600px">
+        <h2 style="font-size:1.8rem;margin-bottom:.4em">Rolünü Seç</h2>
+        <p style="color:var(--text-dim);margin-bottom:1.4em">Türkiye'yi hangi gözle keşfedeceksin?</p>
+        <div class="character-grid">
+          <button class="char-btn" data-char="seyyah">
+            <span class="char-icon">🧭</span>
+            <strong>Seyyah</strong>
+            <small>Her yeri merakla keşfeder, farklı kültürlere açık</small>
+          </button>
+          <button class="char-btn" data-char="arkeolog">
+            <span class="char-icon">⛏️</span>
+            <strong>Arkeolog</strong>
+            <small>Tarihi katmanları deşer, kalıntıları yorumlar</small>
+          </button>
+          <button class="char-btn" data-char="kasif">
+            <span class="char-icon">🔭</span>
+            <strong>Kaşif</strong>
+            <small>Haritayı genişletir, bilinmeyene dalar</small>
+          </button>
+          <button class="char-btn" data-char="tarihci">
+            <span class="char-icon">📜</span>
+            <strong>Tarihçi</strong>
+            <small>Belgeleri okur, geçmişi günümüze bağlar</small>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EKRAN: MİRAS KARTLARI -->
+    <div id="screen-cards" class="screen">
+      <div class="fullscreen-content">
+        <h2 class="fc-title">🃏 Kültürel Miras Kartlarım</h2>
+        <p class="fc-sub" id="cards-summary">Bölgeleri tamamlayarak kart kazan!</p>
+        <div class="heritage-grid" id="heritage-grid"></div>
+        <button class="btn-secondary" id="btn-cards-back">← Haritaya Dön</button>
+      </div>
+    </div>
+
+    <!-- EKRAN: DİJİTAL VATANDAŞLIK -->
+    <div id="screen-digital" class="screen">
+      <div class="fullscreen-content">
+        <h2 class="fc-title">🖥️ Dijital Vatandaşlık</h2>
+        <div id="dv-container">
+          <div id="dv-intro">
+            <p class="fc-sub">Dijital dünyada Türkiye'nin kültürel mirasını nasıl korursun?</p>
+            <button class="btn-primary" id="btn-dv-start">Başla</button>
+            <button class="btn-secondary" id="btn-dv-back-intro">← Geri</button>
+          </div>
+          <div id="dv-question" style="display:none">
+            <div class="dv-progress" id="dv-progress">Senaryo 1 / 5</div>
+            <div class="dv-scenario-box">
+              <p class="dv-scenario-text" id="dv-text"></p>
+            </div>
+            <div class="dv-options" id="dv-options"></div>
+            <div class="dv-feedback" id="dv-feedback" style="display:none"></div>
+            <button class="btn-primary" id="btn-dv-next" style="display:none">Sonraki →</button>
+          </div>
+          <div id="dv-result" style="display:none">
+            <div class="dv-result-box">
+              <div class="dv-result-score" id="dv-result-score"></div>
+              <p id="dv-result-text"></p>
+            </div>
+            <button class="btn-primary" id="btn-dv-again">Tekrar Oyna</button>
+            <button class="btn-secondary" id="btn-dv-back">← Haritaya Dön</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EKRAN: ÖĞRETMEN PANELİ -->
+    <div id="screen-teacher" class="screen">
+      <div class="fullscreen-content">
+        <h2 class="fc-title">📊 Öğretmen Paneli</h2>
+        <div class="tp-stats" id="tp-stats"></div>
+        <div class="tp-regions" id="tp-regions"></div>
+        <button class="btn-secondary" id="btn-teacher-back">← Haritaya Dön</button>
+      </div>
+    </div>
+
   </div><!-- /game-container -->
 
   <!-- PWA: Güncelleme bildirimi -->
@@ -368,7 +456,7 @@
   </div>
 
   <script src="region-badges.js?v=17"></script>
-  <script src="questions-extended.js?v=17"></script>
+  <script src="questions-extended.js?v=18"></script>
   <script src="game.js?v=17"></script>
   <script>
     /* ── PWA Kaydı ── */

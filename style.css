@@ -1940,3 +1940,194 @@ html, body {
   #btn-progress-open { top: 56px; right: 8px; font-size: 0.74rem; padding: 6px 10px; }
   .q-type-chip { font-size: 0.66rem; padding: 2px 8px; margin-left: 4px; }
 }
+
+/* ── DOCX EKLEMELERİ: Karakter, Kartlar, Dijital, Öğretmen ── */
+
+/* Ekstra buton çubuğu (harita ekranı) */
+.extra-btns-bar {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 6px 12px;
+}
+.extra-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text-bright);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+}
+.extra-btn:hover { background: rgba(255,255,255,0.16); transform: translateY(-1px); }
+
+/* Karakter seçimi */
+.character-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 1.4em;
+}
+.char-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 12px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .15s;
+  color: var(--text-bright);
+}
+.char-btn:hover { border-color: var(--accent); background: rgba(79,172,254,0.12); transform: translateY(-2px); }
+.char-btn.selected { border-color: var(--accent); background: rgba(79,172,254,0.18); }
+.char-icon { font-size: 2.2rem; }
+.char-btn strong { font-size: 1rem; }
+.char-btn small { font-size: 0.75rem; color: var(--text-dim); text-align: center; }
+
+/* Tam ekran içerik düzeni (kartlar, dijital, öğretmen) */
+.fullscreen-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 32px;
+  max-width: 680px;
+  margin: 0 auto;
+  min-height: 100%;
+  overflow-y: auto;
+}
+.fc-title { font-size: 1.6rem; margin-bottom: .3em; text-align: center; }
+.fc-sub { color: var(--text-dim); margin-bottom: 1.2em; text-align: center; }
+
+/* Miras kartları grid */
+.heritage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 1.4em;
+}
+.heritage-card-item {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  transition: transform .2s;
+}
+.heritage-card-item.locked { opacity: .4; filter: grayscale(1); }
+.heritage-card-item:not(.locked):hover { transform: translateY(-3px); }
+.heritage-card-item .card-emoji { font-size: 2rem; }
+.heritage-card-item .card-name { font-size: 0.7rem; text-align: center; font-weight: 600; }
+.heritage-card-item .card-rarity {
+  font-size: 0.62rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+/* Kazanılan kartlar — bölge tamamlanma ekranı */
+#bc-cards-earned {
+  width: 100%;
+  max-width: 460px;
+  margin: .8em 0;
+}
+.cards-earned-wrap {
+  background: rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 14px;
+}
+.cards-earned-wrap h4 { margin: 0 0 10px; font-size: .95rem; text-align: center; }
+.cards-earned-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.earned-card-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.68rem;
+}
+.earned-card-mini span:first-child { font-size: 1.4rem; }
+
+/* Dijital vatandaşlık */
+.dv-progress { font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-bottom: .8em; }
+.dv-scenario-box {
+  background: rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 1em;
+}
+.dv-scenario-text { font-size: 1rem; line-height: 1.6; text-align: left; }
+.dv-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1em; width: 100%; }
+.dv-option-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-bright);
+  font-size: 0.9rem;
+  transition: background .2s, border-color .2s;
+}
+.dv-option-btn:hover:not(:disabled) { background: rgba(255,255,255,0.13); border-color: var(--accent); }
+.dv-option-btn.dv-correct { background: rgba(67,233,123,0.18); border-color: var(--accent); }
+.dv-option-btn.dv-wrong { background: rgba(255,90,90,0.18); border-color: var(--danger); }
+.dv-feedback {
+  background: rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  margin-bottom: .8em;
+  text-align: left;
+}
+.dv-result-box { text-align: center; padding: 24px; }
+.dv-result-score { font-size: 3rem; font-weight: 900; color: var(--accent); }
+
+/* Öğretmen paneli */
+.tp-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 1.2em;
+}
+.tp-stat-card {
+  background: rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.tp-stat-card .tp-val { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
+.tp-stat-card .tp-lbl { font-size: 0.72rem; color: var(--text-dim); }
+.tp-regions { width: 100%; margin-bottom: 1.4em; }
+.tp-region-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  margin-bottom: 6px;
+}
+.tp-region-row .tp-region-name { font-size: 0.88rem; font-weight: 600; flex: 1; }
+.tp-bar-wrap { flex: 1; max-width: 120px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin: 0 10px; }
+.tp-bar { height: 100%; background: var(--accent); border-radius: 4px; transition: width .5s ease; }
+.tp-pct { font-size: 0.78rem; color: var(--text-dim); min-width: 36px; text-align: right; }
+
+@media(max-width:480px){
+  .character-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tp-stats { grid-template-columns: 1fr 1fr; }
+  .heritage-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+}

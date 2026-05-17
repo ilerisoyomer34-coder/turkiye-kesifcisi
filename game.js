@@ -471,6 +471,95 @@ const REGIONS = [
   });
 })();
 
+// ── KARAKTER TİPLERİ ─────────────────────────────────────────
+const CHARACTERS = {
+  seyyah:   { label: 'Seyyah',   icon: '🧭', intro: 'Seyyah olarak bu bölgede her şeyi merakla keşfediyorsun.' },
+  arkeolog: { label: 'Arkeolog', icon: '⛏️', intro: 'Arkeolog gözüyle tarihi katmanları deşerken bulunuyorsun burada.' },
+  kasif:    { label: 'Kaşif',    icon: '🔭', intro: 'Kaşif ruhuyla bilinmezlere dalarak bu bölgeyi araştırıyorsun.' },
+  tarihci:  { label: 'Tarihçi',  icon: '📜', intro: 'Tarihçi kimliğinle geçmişi günümüze bağlayan kanıtları arıyorsun.' },
+};
+
+// ── KÜLTÜREL MİRAS KARTLARI ───────────────────────────────────
+const HERITAGE_CARDS = [
+  { id:'sumela',    emoji:'🏛️', name:'Sümela Manastırı',   region:'karadeniz', rarity:'rare',   color:'#72B841' },
+  { id:'safranbolu',emoji:'🏠', name:'Safranbolu Konağı',  region:'karadeniz', rarity:'common', color:'#72B841' },
+  { id:'xanthos',   emoji:'🏺', name:'Xanthos-Letoon',     region:'akdeniz',   rarity:'rare',   color:'#1BBFB0' },
+  { id:'aspendos',  emoji:'🎭', name:'Aspendos Tiyatrosu', region:'akdeniz',   rarity:'common', color:'#1BBFB0' },
+  { id:'catalhoyuk',emoji:'🗿', name:'Çatalhöyük',         region:'ic-anadolu',rarity:'epic',   color:'#F4D03F' },
+  { id:'kapadokya', emoji:'🏔️', name:'Kapadokya Kilisesi', region:'ic-anadolu',rarity:'rare',   color:'#F4D03F' },
+  { id:'efes',      emoji:'🏛️', name:'Efes Antik Kenti',   region:'ege',       rarity:'epic',   color:'#F5A42A' },
+  { id:'pamukkale', emoji:'💧', name:'Pamukkale Traverteni',region:'ege',       rarity:'rare',   color:'#F5A42A' },
+  { id:'selimiye',  emoji:'🕌', name:'Selimiye Camii',     region:'marmara',   rarity:'epic',   color:'#9B59B6' },
+  { id:'bursa-ipek',emoji:'🧵', name:'Bursa İpeği',        region:'marmara',   rarity:'common', color:'#9B59B6' },
+  { id:'nemrut',    emoji:'👑', name:'Nemrut Dağı',        region:'dogu-anadolu',rarity:'rare', color:'#5B9BD5' },
+  { id:'van-kilim', emoji:'🎨', name:'Van Kilimi',         region:'dogu-anadolu',rarity:'common',color:'#5B9BD5' },
+  { id:'gobekli',   emoji:'⚱️', name:'Göbekli Tepe',       region:'guneydogu', rarity:'legendary',color:'#E07B6A' },
+  { id:'antep-bak', emoji:'🍯', name:'Antep Baklavası',    region:'guneydogu', rarity:'common', color:'#E07B6A' },
+];
+const RARITY_COLORS = { common:'#aaa', rare:'#4facfe', epic:'#a855f7', legendary:'#f9c74f' };
+const RARITY_LABELS = { common:'Yaygın', rare:'Nadir', epic:'Epik', legendary:'Efsanevi' };
+
+// ── DİJİTAL VATANDAŞLIK SENARYOLARI ─────────────────────────
+const DV_SCENARIOS = [
+  {
+    text: 'Sosyal medyada Türkiye'nin tarihi bir yapısına ait yanlış bilgi paylaşan bir gönderi gördün. Ne yaparsın?',
+    options: [
+      'Görmezden gel, önemli değil',
+      'Doğru bilgiyi kaynağıyla (Wikipedia, müze sitesi) yorum olarak paylaş',
+      'Gönderiyi öfkeyle eleştir',
+      'Kendi yanlış bilgini ekle',
+    ],
+    correct: 1,
+    explanation: 'Doğru bilgiyi güvenilir kaynakla nazikçe paylaşmak dijital vatandaşlığın en etkili yoludur.'
+  },
+  {
+    text: 'Bir antik site ziyaretinde arkadaşın bir taş parçasını "hatıra olarak" almak istiyor. Tepkin ne olur?',
+    options: [
+      'Tamam, küçük bir parça fark etmez',
+      'Bunu yapmamasını istersin — her parça mirasın bir parçasıdır ve yasadışıdır',
+      'Sen de bir parça alırsın',
+      'Görmezden gelirsin',
+    ],
+    correct: 1,
+    explanation: 'Arkeolojik alanlarda herhangi bir nesne almak yasadışıdır ve kültürel mirasa zarar verir.'
+  },
+  {
+    text: 'Bir web sitesinde eski bir Osmanlı minyatürünü "ücretsiz kullan" diye reklam gördün. Ne yaparsın?',
+    options: [
+      'Hemen indirip kullanırsın',
+      'Telif hakkını ve kaynağını kontrol eder, gerekirse müzeden izin alırsın',
+      'Paylaşıp herkese söylersin',
+      'Müzeye şikâyet edersin',
+    ],
+    correct: 1,
+    explanation: 'Dijital ortamdaki kültürel eserlerin de telif hakları vardır; kullanmadan önce lisansı kontrol etmek gerekir.'
+  },
+  {
+    text: 'Türkiye'ye özgü bir geleneksel yemeği yabancı bir site "Yunan mutfağı" olarak tanıtıyor. Ne yaparsın?',
+    options: [
+      'Bir şey yapamam, uluslararası siteler böyledir',
+      'Sitenin iletişim formuna tarihsel kaynaklar göstererek kibar bir düzeltme mesajı yazarsın',
+      'Sosyal medyada söver geçersin',
+      'Yok sayarsın',
+    ],
+    correct: 1,
+    explanation: 'Kültürel mirası dijital ortamda da korumak için bilgili ve kibar müdahale en etkili yoldur.'
+  },
+  {
+    text: 'Okulda bir proje için bir fotoğrafçının Türk kültürüne ait fotoğraflarını izinsiz kullanmak istiyorsun. Doğru davranış nedir?',
+    options: [
+      'Sadece okul ödevi, sorun olmaz',
+      'Fotoğrafçıdan izin istersin veya Creative Commons lisanslı alternatif ararsın',
+      'Fotoğrafı biraz değiştirip kullanırsın',
+      'İnternetten rastgele başka bir fotoğraf alırsın',
+    ],
+    correct: 1,
+    explanation: 'Okul ödevleri dahil her kullanımda telif hakkına saygı göstermek dijital vatandaşlığın temelidir.'
+  },
+];
+
+
+
 // ── SES MOTORU ───────────────────────────────────────────────
 const SFX = (() => {
   let ctx = null;
@@ -506,6 +595,8 @@ const State = {
   totalAnswered: 0,
   totalCorrect: 0,
   responseTimes: [],
+  character: 'kasif',
+  unlockedCards: [],
   timerInterval: null,
   timeLeft: 0,
   questionStartTime: 0,
@@ -539,13 +630,15 @@ const State = {
       this.totalCorrect = d.totalCorrect || 0;
       this.responseTimes = d.responseTimes || [];
       this.progress = d.progress || {};
+      this.character = d.character || 'kasif';
+      this.unlockedCards = d.unlockedCards || [];
       return true;
     } catch { return false; }
   },
   reset(){
     this.completedRegions={};this.sessionScore=0;
     this.totalAnswered=0;this.totalCorrect=0;this.responseTimes=[];
-    this.progress={};
+    this.progress={};this.character='kasif';this.unlockedCards=[];
     localStorage.removeItem('tkf2');
     localStorage.removeItem('tkf3');
   },
@@ -1292,6 +1385,9 @@ function completeRegion(){
   $('bc-fact').textContent=region.funFact;
 
   SFX.badge();confetti();
+  // Miras kartları kilidi aç
+  const earned = unlockCards(region.id);
+  renderEarnedCards(earned);
   showScreen('region-complete');
 }
 
@@ -1354,6 +1450,176 @@ function showFinalScreen(){
   showScreen('final');
 }
 
+
+// ── KARAKTER SEÇİMİ ─────────────────────────────────────────
+function selectCharacter(charKey){
+  State.character = charKey;
+  State.save();
+  initMap(); updateMapUI(); showScreen('map');
+}
+
+// ── MİRAS KARTI KİLİT AÇMA ───────────────────────────────────
+function unlockCards(regionId){
+  const toUnlock = HERITAGE_CARDS.filter(c => c.region === regionId && !State.unlockedCards.includes(c.id));
+  toUnlock.forEach(c => State.unlockedCards.push(c.id));
+  if(toUnlock.length) State.save();
+  return toUnlock;
+}
+
+function renderEarnedCards(cards){
+  const wrap = $('bc-cards-earned');
+  if(!wrap) return;
+  if(!cards || !cards.length){ wrap.innerHTML=''; return; }
+  const inner = el('div',{className:'cards-earned-wrap'});
+  inner.appendChild(el('h4',{text:'🃏 Yeni Kartlar Kazandın!'}));
+  const list = el('div',{className:'cards-earned-list'});
+  cards.forEach(c=>{
+    const mini = el('div',{className:'earned-card-mini'});
+    mini.appendChild(el('span',{text:c.emoji}));
+    mini.appendChild(el('span',{text:c.name, style:{fontWeight:'600'}}));
+    const rlabel = el('span',{text:RARITY_LABELS[c.rarity]||c.rarity});
+    rlabel.style.color = RARITY_COLORS[c.rarity]||'#aaa';
+    mini.appendChild(rlabel);
+    list.appendChild(mini);
+  });
+  inner.appendChild(list);
+  wrap.innerHTML='';
+  wrap.appendChild(inner);
+}
+
+// ── KARTLAR EKRANI ────────────────────────────────────────────
+function showCards(){
+  const grid = $('heritage-grid');
+  const summary = $('cards-summary');
+  if(!grid) return;
+  grid.innerHTML = '';
+  const total = HERITAGE_CARDS.length;
+  const unlocked = State.unlockedCards.length;
+  if(summary) summary.textContent = `${unlocked} / ${total} kart açıldı — bölgeleri tamamlayarak hepsini topla!`;
+  HERITAGE_CARDS.forEach(c=>{
+    const isUnlocked = State.unlockedCards.includes(c.id);
+    const item = el('div',{className:'heritage-card-item'+(isUnlocked?'':' locked')});
+    item.appendChild(el('span',{className:'card-emoji', text: isUnlocked ? c.emoji : '🔒'}));
+    item.appendChild(el('span',{className:'card-name',  text: isUnlocked ? c.name : '???'}));
+    const rl = el('span',{className:'card-rarity', text: RARITY_LABELS[c.rarity]||c.rarity});
+    rl.style.background = isUnlocked ? (RARITY_COLORS[c.rarity]+'22') : 'rgba(255,255,255,0.06)';
+    rl.style.color = isUnlocked ? RARITY_COLORS[c.rarity] : '#666';
+    item.appendChild(rl);
+    grid.appendChild(item);
+  });
+  showScreen('cards');
+}
+
+// ── ÖĞRETMEN PANELİ ───────────────────────────────────────────
+function showTeacher(){
+  const statsWrap = $('tp-stats');
+  const regionsWrap = $('tp-regions');
+  if(!statsWrap || !regionsWrap) return;
+  statsWrap.innerHTML = '';
+  regionsWrap.innerHTML = '';
+
+  const totalQ = REGIONS.reduce((s,r)=>s+r.questions.length, 0);
+  const totalC = State.totalCorrect;
+  const totalA = State.totalAnswered;
+  const acc = totalA ? Math.round(totalC/totalA*100) : 0;
+  const cardsCount = State.unlockedCards.length;
+
+  const stats = [
+    { val: State.sessionScore.toLocaleString('tr-TR'), lbl: 'Toplam Puan' },
+    { val: `%${acc}`, lbl: 'Doğruluk Oranı' },
+    { val: `${Object.keys(State.completedRegions).length}/7`, lbl: 'Tamamlanan Bölge' },
+    { val: `${totalC}/${totalA}`, lbl: 'Doğru / Cevaplanan' },
+    { val: cardsCount, lbl: 'Açılan Kart' },
+    { val: CHARACTERS[State.character]?.label || State.character, lbl: 'Karakter' },
+  ];
+  stats.forEach(s=>{
+    const card = el('div',{className:'tp-stat-card'});
+    card.appendChild(el('div',{className:'tp-val', text:String(s.val)}));
+    card.appendChild(el('div',{className:'tp-lbl', text:s.lbl}));
+    statsWrap.appendChild(card);
+  });
+
+  REGIONS.forEach(r=>{
+    const done = State.completedRegions[r.id];
+    const pct = done ? Math.round(done.score/1000*100) : 0;
+    const row = el('div',{className:'tp-region-row'});
+    row.appendChild(el('span',{className:'tp-region-name', text:`${r.icon} ${r.name}`}));
+    const barWrap = el('div',{className:'tp-bar-wrap'});
+    const bar = el('div',{className:'tp-bar'});
+    bar.style.width = pct + '%';
+    bar.style.background = r.color;
+    barWrap.appendChild(bar);
+    row.appendChild(barWrap);
+    row.appendChild(el('span',{className:'tp-pct', text: done ? `%${pct}` : '—'}));
+    regionsWrap.appendChild(row);
+  });
+
+  showScreen('teacher');
+}
+
+// ── DİJİTAL VATANDAŞLIK ───────────────────────────────────────
+let dvIndex = 0, dvScore = 0;
+
+function startDigital(){
+  dvIndex = 0; dvScore = 0;
+  $('dv-intro').style.display = 'none';
+  $('dv-result').style.display = 'none';
+  $('dv-question').style.display = 'flex';
+  $('dv-question').style.flexDirection = 'column';
+  renderDV();
+}
+
+function renderDV(){
+  const s = DV_SCENARIOS[dvIndex];
+  $('dv-progress').textContent = `Senaryo ${dvIndex+1} / ${DV_SCENARIOS.length}`;
+  $('dv-text').textContent = s.text;
+  const optWrap = $('dv-options');
+  optWrap.innerHTML = '';
+  $('dv-feedback').style.display = 'none';
+  $('btn-dv-next').style.display = 'none';
+  s.options.forEach((opt, i) => {
+    const btn = el('button',{className:'dv-option-btn', text: opt});
+    btn.addEventListener('click', ()=> answerDV(i));
+    optWrap.appendChild(btn);
+  });
+}
+
+function answerDV(chosen){
+  const s = DV_SCENARIOS[dvIndex];
+  const isOk = chosen === s.correct;
+  if(isOk) dvScore++;
+  const buttons = $('dv-options').querySelectorAll('.dv-option-btn');
+  buttons.forEach((b,i)=>{
+    b.disabled = true;
+    if(i===s.correct) b.classList.add('dv-correct');
+    else if(i===chosen && !isOk) b.classList.add('dv-wrong');
+  });
+  const fb = $('dv-feedback');
+  fb.textContent = (isOk ? '✅ ' : '❌ ') + s.explanation;
+  fb.style.display = 'block';
+  fb.style.color = isOk ? 'var(--accent)' : 'var(--danger)';
+  $('btn-dv-next').style.display = '';
+}
+
+function nextDV(){
+  dvIndex++;
+  if(dvIndex >= DV_SCENARIOS.length){
+    $('dv-question').style.display = 'none';
+    const pct = Math.round(dvScore/DV_SCENARIOS.length*100);
+    $('dv-result-score').textContent = `${dvScore}/${DV_SCENARIOS.length}`;
+    $('dv-result-text').textContent = pct===100
+      ? '🏆 Mükemmel! Dijital vatandaşlık konusunda uzmansın!'
+      : pct>=60
+        ? '👍 İyi iş! Dijital miras bilincin güçlü.'
+        : '📚 Biraz daha öğrenmek için tekrar dene!';
+    $('dv-result').style.display = 'flex';
+    $('dv-result').style.flexDirection = 'column';
+    $('dv-result').style.alignItems = 'center';
+  } else {
+    renderDV();
+  }
+}
+
 // ── ANA BAŞLATICI ────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   // Kayıtlı ilerlemeyi yükle (varsa)
@@ -1391,7 +1657,7 @@ window.addEventListener('DOMContentLoaded',()=>{
     }
     SFX.click();
     State.reset();State.playerName=name;State.save();
-    initMap();updateMapUI();showScreen('map');
+    showScreen('character');
   });
   $('btn-start-quiz').addEventListener('click',()=>{ SFX.click(); startQuiz(); });
   $('btn-back-map').addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
@@ -1400,4 +1666,30 @@ window.addEventListener('DOMContentLoaded',()=>{
   $('btn-print-cert').addEventListener('click',()=>{ SFX.click(); window.print(); });
   $('btn-play-again').addEventListener('click',()=>{ SFX.click(); State.reset(); $('player-name-input').value=''; showScreen('intro'); });
   $('btn-install')?.addEventListener('click',()=>PWA.install());
+
+  // Karakter seçimi
+  document.querySelectorAll('.char-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      SFX.click();
+      selectCharacter(btn.dataset.char);
+    });
+  });
+
+  // Ekstra butonlar — harita ekranı
+  $('btn-open-cards')?.addEventListener('click',()=>{ SFX.click(); showCards(); });
+  $('btn-open-digital')?.addEventListener('click',()=>{ SFX.click(); showScreen('digital'); });
+  $('btn-open-teacher')?.addEventListener('click',()=>{ SFX.click(); showTeacher(); });
+
+  // Kartlar ekranı
+  $('btn-cards-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
+
+  // Dijital vatandaşlık
+  $('btn-dv-start')?.addEventListener('click',()=>{ SFX.click(); startDigital(); });
+  $('btn-dv-next')?.addEventListener('click',()=>{ SFX.click(); nextDV(); });
+  $('btn-dv-back-intro')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
+  $('btn-dv-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
+  $('btn-dv-again')?.addEventListener('click',()=>{ SFX.click(); startDigital(); });
+
+  // Öğretmen paneli
+  $('btn-teacher-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
 });
