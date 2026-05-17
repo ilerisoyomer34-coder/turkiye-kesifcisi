@@ -1858,19 +1858,19 @@ async function sendAIMessage(){
   if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = '...'; }
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'gpt-4o-mini',
         max_tokens: 500,
-        system: AI_SYSTEM_PROMPT,
-        messages: aiMessages.slice(-10), // son 10 mesaj (context)
+        messages: [
+          { role: 'system', content: AI_SYSTEM_PROMPT },
+          ...aiMessages.slice(-10),
+        ],
       }),
     });
 
@@ -1880,7 +1880,7 @@ async function sendAIMessage(){
     }
 
     const data = await res.json();
-    const reply = data.content?.[0]?.text || '(Yanıt alınamadı)';
+    const reply = data.choices?.[0]?.message?.content || '(Yanıt alınamadı)';
     aiMessages.push({ role: 'assistant', content: reply });
     appendAIMessage('assistant', reply);
   } catch(e){
@@ -2000,7 +2000,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   $('ai-send-btn')?.addEventListener('click',()=>{ sendAIMessage(); });
   $('ai-input')?.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendAIMessage(); }});
   // API key localStorage
-  const savedKey = localStorage.getItem('kmAIKey');
+  const savedKey = localStorage.getItem('kmAIKey') || '';
   if(savedKey){ const k=$('ai-api-key'); if(k) k.value=savedKey; }
   $('ai-api-key')?.addEventListener('change', e=>{ localStorage.setItem('kmAIKey', e.target.value.trim()); });
 });
