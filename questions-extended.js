@@ -412,3 +412,531 @@ const AI_QUESTIONS = {
 })();
 
 if(typeof window !== 'undefined') window.AI_QUESTIONS = AI_QUESTIONS;
+
+// ── UNUTULMAYA YÜZ TUTMUŞ MİRAS — EŞLEŞTİRME & ÇOKLU ŞIK (7 bölge × 5 soru) ──
+const FORGOTTEN_QUESTIONS = {
+
+  'karadeniz': [
+    {
+      text: 'Karadeniz\'de yok olma tehlikesiyle karşı karşıya olan geleneksel el sanatları hangilerdir?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Trabzon bakır kalemkârlığı (elle oyma gravür)',
+        'Kastamonu ahşap kalıp yazmacılığı',
+        'Hereke ipek halıcılığı (Marmara\'ya aittir)',
+        'Bartın söğüt dalı sepetçiliği',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Trabzon',
+      imageCaption: 'Karadeniz\'de nesli tükenmekte olan geleneksel el sanatları',
+      explanation: 'Trabzon bakır kalemkârlığı, Kastamonu yazmacılığı ve Bartın sepetçiliği Karadeniz\'in yok olma tehlikesindeki üç önemli zanaatıdır. Hereke halıcılığı ise Marmara Bölgesi\'ne aittir.'
+    },
+    {
+      text: 'Karadeniz\'e özgü unutulan el sanatını doğru özelliğiyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Trabzon bakır kalemkârlığı | Bakır levhaya elle çekiç ve kalemle desen oyma',
+        'Kastamonu yazmacılığı | Ahşap kalıpla kumaşa elle baskı yapma',
+        'Bartın sepetçiliği | Söğüt ve fındık dalından örme',
+        'Bayburt ehram dokumacılığı | Yünden elle dokunan büyük örtü',
+      ],
+      correct: null,
+      wikiTitle: 'Kastamonu',
+      imageCaption: 'Karadeniz unutulan el sanatları eşleştirmesi',
+      explanation: 'Her zanaat kendine özgü teknikle uygulanır: Bakır kalemkârlığı elde çekiçle, yazmacılık ahşap kalıpla, sepetçilik söğüt dalıyla, ehram dokumacılığı ise tezgâhta yünle yapılır.'
+    },
+    {
+      text: 'Karadeniz\'de imece kültürüyle bağlantılı hangi uygulamalar yok olmaktadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Lenger geleneği — toplu aş pişirip komşulara dağıtma',
+        'Yaylaya çıkma ve sütün ortaklaşa işlenmesi (yoğurt, peynir)',
+        'Kırkpınar yağlı güreşi (Edirne\'ye aittir)',
+        'Bağ bozumu yardımlaşması ve şarkılı hasat töreni',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Karadeniz',
+      imageCaption: 'Karadeniz imece geleneği — yok olmaya yüz tutan toplumsal pratikler',
+      explanation: 'Lenger geleneği, yayla sütü ortaklaşa işleme ve bağ bozumu yardımlaşması Karadeniz imece kültürünün parçasıdır. Kırkpınar ise Edirne\'ye özgüdür.'
+    },
+    {
+      text: 'Unutulmaya yüz tutan Karadeniz müzik aleti ile kullanıldığı yöreyi eşleştir.',
+      category: 'music', type: 'drag',
+      options: [
+        'Kemençe | Trabzon ve Rize — üç telli keman',
+        'Tulum (dağ gayda) | Artvin ve Rize — tulumdan yapılmış üflemeli',
+        'Çığırtma | Kastamonu ve Sinop — kemikten yapılan düdük',
+        'Mey | Artvin — kamıştan çift dilli nefesli çalgı',
+      ],
+      correct: null,
+      wikiTitle: 'Horon',
+      imageCaption: 'Karadeniz\'in unutulan geleneksel müzik aletleri',
+      explanation: 'Kemençe Trabzon ve Rize\'ye, tulum Artvin ve Rize\'ye, çığırtma Kastamonu-Sinop\'a, mey ise Artvin yöresine özgüdür. Bu çalgıların ustası giderek azalmaktadır.'
+    },
+    {
+      text: 'Hemşin yöresiyle bağlantılı aşağıdaki hangi uygulamalar yok olma tehlikesindedir?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Hemşin hevsel bahçeciliği ve organik yayla tarımı',
+        'Geleneksel Hemşin mimari evleri (ahşap konsollu) yapım tekniği',
+        'Antalya sünger dalgıçlığı (Akdeniz\'e aittir)',
+        'Fındık hasadında söylenen türküler ve hasat şarkıları',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Hemşin',
+      imageCaption: 'Hemşin yaylacılığı ve geleneksel mimari — unutulmakta olan kültür',
+      explanation: 'Hemşin yöresinin organik yayla tarımı, özgün ahşap mimari tekniği ve fındık hasatı türküleri yok olma tehlikesindedir. Sünger dalgıçlığı Ege/Akdeniz\'e aittir.'
+    },
+  ],
+
+  'akdeniz': [
+    {
+      text: 'Akdeniz\'de nesli tükenmekte olan hangi geleneksel meslekler tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Kalafatçı — ahşap teknenin su geçirmezliğini sağlayan usta',
+        'Sünger dalgıcı — doğal deniz süngerini el ile toplayan',
+        'Hereke halı ustası (Marmara\'ya aittir)',
+        'Yörük keçe ustası — yün keçeden çadır ve kilim yapan',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Alanya',
+      imageCaption: 'Akdeniz\'de yok olmakta olan geleneksel meslekler',
+      explanation: 'Kalafatçı, sünger dalgıcı ve Yörük keçe ustası Akdeniz\'de nesli tükenmekte olan mesleklerdir. Hereke halıcılığı Kocaeli/Marmara\'ya aittir.'
+    },
+    {
+      text: 'Akdeniz\'de unutulan geleneksel zanaatı doğru iliyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Kalafatçılık (ahşap tekne su geçirmezliği) | Alanya',
+        'Kelebek motifli kilim dokumacılığı | Elmalı / Antalya',
+        'Doğal sünger avcılığı | Bodrum ve Kaş',
+        'Geleneksel Hatay cumbalı ev yapımı | Antakya',
+      ],
+      correct: null,
+      wikiTitle: 'Antakya',
+      imageCaption: 'Akdeniz unutulan zanaatları — il eşleştirmesi',
+      explanation: 'Alanya kalafatçılığı, Elmalı kilimi, Bodrum-Kaş sünger avcılığı ve Antakya cumbalı ev yapımı Akdeniz\'in bölgesel geleneksel zanaatlarıdır.'
+    },
+    {
+      text: 'Yörük göçebe geleneğiyle bağlantılı aşağıdaki hangi uygulamalar yok olmaktadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Keçi kılından kara çadır (Karaçadır) dikme sanatı',
+        'Yörük sözlü destanları ve mani geleneği',
+        'Kırkpınar güreş festivali (Edirne\'ye aittir)',
+        'Yörük keçesinden çuval, heybe ve kilim dokuma',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Yörük',
+      imageCaption: 'Yörük göçebe geleneği — Toroslar\'da yok olmakta olan kültür',
+      explanation: 'Karaçadır dikme sanatı, Yörük sözlü destanları ve keçe dokumacılığı yok olma tehlikesindeki Yörük geleneğinin parçasıdır. Kırkpınar Edirne\'ye aittir.'
+    },
+    {
+      text: 'Akdeniz\'in unutulan mimari unsurunu doğru özelliğiyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Likya kaya mezarı | Kayaya oyulmuş tapınak cepheli anıtsal mezar',
+        'Antakya cumbalı ev | Arap-Osmanlı mirası ahşap çıkmalı cephe',
+        'Alanya tersane kemerleri | Selçuklu dönemi deniz üssünün taş tonoz yapısı',
+        'Aspendos aquadukt | MS 2. yüzyıl Roma dönemi su kemeri kalıntısı',
+      ],
+      correct: null,
+      wikiTitle: 'Lycian rock-cut tombs',
+      imageCaption: 'Akdeniz unutulan mimari unsurları eşleştirmesi',
+      explanation: 'Her yapı farklı bir uygarlığa ve döneme aittir: Likya kaya mezarı MÖ 4-2. yüzyıl, Antakya cumbalı ev Osmanlı dönemi, Alanya tersanesi Selçuklu dönemi, Aspendos aquadukt ise Roma dönemidir.'
+    },
+    {
+      text: 'Antalya çevresinde yok olmakta olan hangi doğa-kültür pratikleri tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Olimpos yöresi kekik ve menengiç kahvesi toplama geleneği',
+        'Phaselis körfezinde geleneksel ağ balıkçılığı ritüeli',
+        'Konya Mevlana dergâhı sema töreni (İç Anadolu\'ya aittir)',
+        'Tahtacı Alevi Türkmenlerinin orman kültürü ve cem töreni',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Antalya',
+      imageCaption: 'Antalya çevresi doğa-kültür pratikleri — yok olma tehlikesi',
+      explanation: 'Olimpos\'ta kekik toplama, Phaselis\'te geleneksel ağ balıkçılığı ve Tahtacı Türkmenlerinin orman-cem kültürü Akdeniz\'de yok olma tehlikesindeki pratiklerdir. Sema töreni İç Anadolu\'ya aittir.'
+    },
+  ],
+
+  'ic-anadolu': [
+    {
+      text: 'İç Anadolu\'da yok olma tehlikesindeki hangi geleneksel el sanatları doğrudur?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Sivas Yatağan bıçakçılığı — dövme çelik elle şekillendirme',
+        'Ankara tiftik dokuması — Ankara keçisinden iplik yapma',
+        'Kütahya cam mozaik (Ege\'ye aittir)',
+        'Aksaray ve Niğde\'de geleneksel taş oyma kapı süsleme',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Sivas',
+      imageCaption: 'İç Anadolu unutulan el sanatları',
+      explanation: 'Sivas bıçakçılığı, Ankara tiftik dokuması ve Aksaray-Niğde taş oyma kapıları İç Anadolu\'da yok olma tehlikesindedir. Kütahya cam mozaik Ege\'ye aittir.'
+    },
+    {
+      text: 'İç Anadolu\'da unutulan zanaatı doğru şehriyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Sivas Yatağan bıçakçılığı | Sivas — dövme elle şekillendirme',
+        'Ankara tiftik dokumacılığı | Ankara — Angora keçisi yünü',
+        'Kastamonu sepet örücülüğü | Kastamonu (Karadeniz\'e aittir)',
+        'Konya halı dokumacılığı | Konya — Selçuklu dönemi geleneği',
+      ],
+      correct: null,
+      wikiTitle: 'Konya',
+      imageCaption: 'İç Anadolu geleneksel zanaat eşleştirmesi',
+      explanation: 'Sivas bıçakçılığı, Ankara tiftik ve Konya halı dokumacılığı İç Anadolu\'ya özgüdür. Kastamonu sepetçiliği ise Karadeniz Bölgesi\'ndedir.'
+    },
+    {
+      text: 'Kapadokya\'da yok olmakta olan hangi kültürel uygulamalar tehlike altındadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Tüf kayaya oyulmuş güvercin evi (güvercinlik) yapım geleneği',
+        'Geleneksel Kapadokya çömlekçiliği — el çarkında şekillendirme',
+        'Bursa Koza Hanı ipek ticareti geleneği (Marmara\'ya aittir)',
+        'Nevşehir\'de kaya kilisesi fresklerinin geleneksel bakım ritüeli',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Göreme Open Air Museum',
+      imageCaption: 'Kapadokya\'da yok olmakta olan kültürel uygulamalar',
+      explanation: 'Tüf kaya güvercinlik geleneği, el çarkı çömlekçiliği ve kaya kilisesi bakım ritüelleri Kapadokya\'ya özgü yok olma tehlikesindeki kültürel pratiklerdir.'
+    },
+    {
+      text: 'Anadolu\'nun unutulan ritüelini doğru anlamıyla eşleştir.',
+      category: 'music', type: 'drag',
+      options: [
+        'Alacaören yağmur duası | Kuraklıkta toplu dua ve su serpme ritüeli',
+        'Hıdırellez kutlaması | Doğanın uyanışını simgeleyen Mayıs bayramı',
+        'Nevruz ateşi | Yeni yılı karşılayan ateş üzerinden atlama geleneği',
+        'Saya gezme | Kışın ortasında kapı kapı dolaşıp şans dileme',
+      ],
+      correct: null,
+      wikiTitle: 'Hıdırellez',
+      imageCaption: 'Anadolu unutulan ritüelleri — anlam eşleştirmesi',
+      explanation: 'Bu dört ritüel farklı mevsimlere ve anlamlara sahiptir: Alacaören kuraklık duası, Hıdırellez Mayıs bayramı, Nevruz ateş ritüeli ve Saya kış geleneği olarak bilinir.'
+    },
+    {
+      text: 'İç Anadolu\'da yok olmakta olan hangi sözlü gelenek unsurları tehlike altındadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Aşık geleneği — saz eşliğinde doğaçlama şiir söyleme',
+        'Meddah anlatımı — tek kişilik sözlü hikâye ve mizah sanatı',
+        'Karagöz gölge oyunu (Marmara/Bursa\'ya aittir)',
+        'Saya gezme türküleri — kış ortasında kapı kapı söylenen şarkılar',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Ashik',
+      imageCaption: 'İç Anadolu sözlü gelenek — yok olma tehlikesindeki kültür',
+      explanation: 'Aşık geleneği, meddah anlatımı ve saya türküleri İç Anadolu\'da yok olma tehlikesindeki sözlü kültür unsurlarıdır. Karagöz ise Bursa/Marmara kökenlidir.'
+    },
+  ],
+
+  'ege': [
+    {
+      text: 'Ege\'de yok olma tehlikesindeki hangi geleneksel el sanatları doğrudur?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Bergama boynuz tarakçılığı — hayvan boynuzundan tarak yapma',
+        'Çeşme sakız hasadı — mastika reçinesi elle dövme toplama',
+        'Trabzon bakır kalemkârlığı (Karadeniz\'e aittir)',
+        'Milas bitkisel boyalı kilim dokumacılığı',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Bergama',
+      imageCaption: 'Ege\'de yok olma tehlikesindeki el sanatları',
+      explanation: 'Bergama boynuz tarakçılığı, Çeşme sakız hasadı ve Milas kilim dokumacılığı Ege\'ye özgü yok olma tehlikesindeki zanaatlardır. Trabzon bakır kalemkârlığı Karadeniz\'e aittir.'
+    },
+    {
+      text: 'Ege\'nin unutulan geleneksel zanaatını doğru yöreyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Boynuz tarak yapımı | Bergama — plastik üretim baskısıyla yok oluyor',
+        'Mastika (sakız) hasadı | Çeşme ve Sakız adası — 2500 yıllık gelenek',
+        'Bitkisel boyalı kilim | Milas / Muğla — koç boynuzu motifli',
+        'Deri yemeni yapımı | Selçuk / İzmir — el dikişi çarık geleneği',
+      ],
+      correct: null,
+      wikiTitle: 'Mastic (plant resin)',
+      imageCaption: 'Ege\'nin unutulan geleneksel zanaatları — yöre eşleştirmesi',
+      explanation: 'Her zanaat Ege\'nin farklı yöresine özgüdür: Bergama\'da boynuz tarak, Çeşme\'de sakız hasadı, Milas\'ta kilim ve Selçuk\'ta deri yemeni yapımı yapılırdı.'
+    },
+    {
+      text: 'Ege\'de yok olmakta olan deniz ve balıkçılık kültürüne dair hangi uygulamalar tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Bodrum ve Kaş\'ta geleneksel ahşap gulet inşası',
+        'Ege\'de doğal sünger avcılığı ve dalış ritüeli',
+        'Alanya kalafatçılığı (Akdeniz\'e aittir)',
+        'Foça\'da geleneksel ağ balıkçılığı ve ağ örme sanatı',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Bodrum',
+      imageCaption: 'Ege deniz kültürü — yok olmakta olan pratikler',
+      explanation: 'Bodrum-Kaş\'ta ahşap gulet inşası, Ege\'de sünger avcılığı ve Foça\'da ağ örme geleneği Ege\'nin yok olmakta olan deniz kültürünün parçasıdır. Alanya kalafatçılığı Akdeniz\'e aittir.'
+    },
+    {
+      text: 'Ege\'nin unutulan ritüel veya festivalini doğru özelliğiyle eşleştir.',
+      category: 'music', type: 'drag',
+      options: [
+        'Manisa Mesir Macunu Şenliği | Camiden halka renkli macun atılan 500 yıllık festival',
+        'Selçuk Efes Kültür Festivali | Helenistik miras canlandırmacılığı',
+        'Foça Hıdırellez kutlaması | Ege sahilinde ateş ve deniz ritüeli',
+        'Çeşme Sakız Festivali | Mastika hasatını kutlayan modern gelenek',
+      ],
+      correct: null,
+      wikiTitle: 'Mesir Macunu Festival',
+      imageCaption: 'Ege festival ve ritüelleri — eşleştirme',
+      explanation: 'Her festival ya da ritüel kendine özgü tarihe ve anlama sahiptir: Mesir 500 yıllık, Efes antik canlandırma, Foça Hıdırellez deniz ritüeli ve Çeşme Sakız festivali bölgenin kültürel takvimini oluşturur.'
+    },
+    {
+      text: 'Ege\'de yok olmakta olan hangi mimari ve yaşam kültürü unsurları tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Muğla\'nın bacalı beyaz badanalı geleneksel Muğla evi mimarisi',
+        'Ege köy meydanı etrafında örgütlenen imece kültürü',
+        'Edirne Kırkpınar ağalık geleneği (Marmara\'ya aittir)',
+        'İzmir\'in tarihi Kemeraltı çarşısında kaybolmakta olan geleneksel esnaf',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Muğla',
+      imageCaption: 'Ege geleneksel yaşam kültürü — yok olma tehlikesi',
+      explanation: 'Muğla\'nın özgün bacalı ev mimarisi, Ege köy imsği kültürü ve Kemeraltı\'nın geleneksel esnafları yok olma tehlikesindedir. Kırkpınar ağalığı Edirne\'ye aittir.'
+    },
+  ],
+
+  'marmara': [
+    {
+      text: 'Marmara\'da yok olma tehlikesindeki hangi geleneksel el sanatları doğrudur?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Bursa ipekçiliği — Koza Han\'da el ekişiyle ham ipek işleme',
+        'Edirne misk sabunu yapımı — geleneksel sabun pişirme',
+        'Milas bitkisel kilim dokumacılığı (Ege\'ye aittir)',
+        'İstanbul ebru sanatı — su yüzeyinde boyayla desen oluşturma',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Bursa',
+      imageCaption: 'Marmara\'da yok olma tehlikesindeki el sanatları',
+      explanation: 'Bursa ipekçiliği, Edirne misk sabunu ve İstanbul ebru sanatı Marmara\'da nesli tükenmekte olan zanaatlardır. Milas kilimi Ege Bölgesi\'ne aittir.'
+    },
+    {
+      text: 'Marmara\'da unutulan geleneksel zanaatı ya da sanatı doğru özelliğiyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Ebru (kâğıt mermeri) | Su yüzeyine fırlatılan boyaların kâğıda aktarılması',
+        'Hat sanatı | Kamış kalemle Arap alfabesiyle kaligrafi',
+        'Tezhip | Altın varak ve boya ile el yazması süsleme',
+        'Minyatür | İnce fırçayla küçük boyutlu el yazması resim',
+      ],
+      correct: null,
+      wikiTitle: 'Ebru (marbling)',
+      imageCaption: 'Osmanlı görsel sanatları — teknik eşleştirmesi',
+      explanation: 'Osmanlı\'nın dört büyük kitap sanatı farklı tekniklerle uygulanır: Ebru su üzerinde, hat kamış kalemle, tezhip altın varakla, minyatür ise ince fırçayla gerçekleştirilir.'
+    },
+    {
+      text: 'İstanbul\'da yok olmakta olan hangi geleneksel meslek ve uygulamalar tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Sahaf (eski kitap satıcısı) — Sahaflar Çarşısı esnafının azalması',
+        'Geleneksel çilingir — anahtarı elle eğeyerek yapan usta',
+        'Hereke ipek halı ustası (Kocaeli\'ne aittir)',
+        'Kapalıçarşı bakırcı ve kuyumcu zanaatkârları',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Grand Bazaar Istanbul',
+      imageCaption: 'İstanbul\'da yok olmakta olan geleneksel esnaf',
+      explanation: 'Sahaflar, geleneksel çilingirler ve Kapalıçarşı\'nın el işi bakır-kuyumcu ustalarının sayısı hızla azalmaktadır. Hereke halı ustası Kocaeli\'ne aittir.'
+    },
+    {
+      text: 'Bursa\'da unutulan geleneksel uygulamayı doğru özellikleriyle eşleştir.',
+      category: 'music', type: 'drag',
+      options: [
+        'Karagöz gölge oyunu | Deriden kesilen figürlerle perde arkasında gösteri',
+        'Koza Han ipek ticareti | Osmanlı\'dan kalma ipek borsasının küçülmesi',
+        'Hamam tellak geleneği | Kese-köse hizmetini ustadan öğrenen zanaat',
+        'Bursa Yeşil Türbe ziyaret ritüeli | Osmanlı türbe ziyaret kültürü',
+      ],
+      correct: null,
+      wikiTitle: 'Karagöz and Hacivat',
+      imageCaption: 'Bursa\'da unutulan geleneksel pratikler — eşleştirme',
+      explanation: 'Karagöz gölge oyunu, Koza Han ipek ticareti, hamam tellak geleneği ve türbe ziyaret kültürü Bursa\'nın UNESCO listesindeki ya da listede olması gereken kültürel mirasını oluşturur.'
+    },
+    {
+      text: 'Edirne\'de yok olmakta olan hangi geleneksel uygulamalar tehlike altındadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Kırkpınar ağalık geleneği — güreş organizatörlüğünün kuşaktan kuşağa geçmesi',
+        'Edirne kakma sanatı — ahşap veya madene tel kakma',
+        'Trabzon bakır kalemkârlığı (Karadeniz\'e aittir)',
+        'Edirne geleneksel Bulgar ve Rum azınlık müziği mirasının korunması',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Edirne',
+      imageCaption: 'Edirne\'de yok olmakta olan geleneksel kültür',
+      explanation: 'Kırkpınar ağalık geleneği, Edirne kakma sanatı ve çok kültürlü müzik mirası Edirne\'nin tehlike altındaki kültürel varlıklarıdır. Trabzon bakır kalemkârlığı Karadeniz\'e aittir.'
+    },
+  ],
+
+  'dogu-anadolu': [
+    {
+      text: 'Doğu Anadolu\'da yok olma tehlikesindeki hangi geleneksel el sanatları doğrudur?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Erzurum Oltu taşı oyma sanatı',
+        'Bayburt ehram dokumacılığı — yünden elle dokunan örtü',
+        'Çeşme sakız hasadı (Ege\'ye aittir)',
+        'Van kilim ve halı dokumacılığı — coğrafi işaretli el dokuması',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Oltu stone',
+      imageCaption: 'Doğu Anadolu\'da yok olma tehlikesindeki el sanatları',
+      explanation: 'Erzurum Oltu taşı oymacılığı, Bayburt ehram dokuması ve Van kilim-halı dokumacılığı Doğu Anadolu\'da nesli tükenmekte olan zanaatlardır. Sakız hasadı Ege\'ye aittir.'
+    },
+    {
+      text: 'Doğu Anadolu\'nun unutulan geleneksel el sanatını doğru özelliğiyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Erzurum Oltu taşı oymacılığı | Yalnızca Oltu ilçesinde çıkan lignit taşın el testeresiyle şekillendirilmesi',
+        'Bayburt ehram | Elle dokunan yünlü büyük örtü — soğuktan korunma',
+        'Van kilimi | Coğrafi işaretli, Van Gölü havzasına özgü geometrik motifli',
+        'Erzincan çiçek bıçağı (cicim) | İnce tığ işiyle yapılan geleneksel bıçak sapı süslemesi',
+      ],
+      correct: null,
+      wikiTitle: 'Oltu stone',
+      imageCaption: 'Doğu Anadolu el sanatları teknik eşleştirmesi',
+      explanation: 'Her zanaat farklı teknik ve hammadde gerektirir: Oltu taşı lignit oyma, ehram yün dokuma, Van kilimi geometrik motifli dokuma ve Erzincan cicim işi tığ ile yapılır.'
+    },
+    {
+      text: 'Doğu Anadolu\'da yok olmakta olan hangi müzik ve ritüel gelenekleri tehlike altındadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Dengbêj geleneği — Kürtçe epik sözlü anlatı ve türkü söyleme',
+        'Erzurum Barı — el ele sıra dansı ve öğrenme geleneği',
+        'Konya Sema töreni (İç Anadolu\'ya aittir)',
+        'Van\'da Nevruz ateş töreni ve geleneksel kıyafetler',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Dengbêj',
+      imageCaption: 'Doğu Anadolu\'da yok olmakta olan müzik gelenekleri',
+      explanation: 'Dengbêj sözlü anlatı geleneği, Erzurum Barı dansı ve Van Nevruz töreni Doğu Anadolu\'nun tehlike altındaki kültürel pratikleridir. Sema töreni İç Anadolu\'ya aittir.'
+    },
+    {
+      text: 'Doğu Anadolu\'nun unutulan geleneksel ritüelini doğru anlamıyla eşleştir.',
+      category: 'music', type: 'drag',
+      options: [
+        'Dengbêj | Kürtçe uzun soluklu epik şarkı — ağıt, destan, haber taşıma',
+        'Erzurum Barı | Erkeklerin sıra oluşturarak el ele oynadığı halk dansı',
+        'Nevruz | Mart\'ın 21\'inde yeni yılı karşılayan ateş ve su ritüeli',
+        'Van Gölü kaıkçı duası | Balıkçıların tekneyi suya indirmeden önce yaptığı kutsal ritüel',
+      ],
+      correct: null,
+      wikiTitle: 'Dengbêj',
+      imageCaption: 'Doğu Anadolu ritüel eşleştirmesi',
+      explanation: 'Dengbêj epik anlatı ve haber taşıma, Erzurum Barı sıra dansı, Nevruz yeni yıl ve Van\'da denize iniş duası birbirinden farklı geleneksel pratiklerdir.'
+    },
+    {
+      text: 'Doğu Anadolu\'da yok olmakta olan hangi geleneksel mimari ve yaşam unsurları tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Van Gölü havzasında taş malzemeli geleneksel ev yapım tekniği',
+        'Erzurum taş ev — bazalt taşla inşa edilen soğuğa dayanıklı konut',
+        'Bursa Yeşil Türbe motifleri (Marmara\'ya aittir)',
+        'Doğubeyazıt\'ta İshak Paşa Sarayı\'nın yanındaki tarihi köy dokusu',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Erzurum',
+      imageCaption: 'Doğu Anadolu\'da yok olmakta olan geleneksel mimari',
+      explanation: 'Van ve Erzurum\'un taş ev yapım teknikleri ve Doğubeyazıt\'ın tarihi köy dokusu Doğu Anadolu\'nun koruma gerektiren mimari mirasıdır. Yeşil Türbe Bursa\'ya aittir.'
+    },
+  ],
+
+  'guneydogu': [
+    {
+      text: 'Güneydoğu Anadolu\'da yok olma tehlikesindeki hangi geleneksel el sanatları doğrudur?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Mardin telkari — ince gümüş telden dantel gibi örme',
+        'Gaziantep yemeniciliği — el dikişi deri çarık yapımı',
+        'Bergama boynuz tarakçılığı (Ege\'ye aittir)',
+        'Diyarbakır bakırcılığı — çekiçle bakır kap şekillendirme',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Filigree',
+      imageCaption: 'Güneydoğu Anadolu\'da yok olma tehlikesindeki el sanatları',
+      explanation: 'Mardin telkari, Antep yemeniciliği ve Diyarbakır bakırcılığı Güneydoğu\'nun tehlike altındaki zanaatlarıdır. Bergama boynuz tarakçılığı Ege\'ye aittir.'
+    },
+    {
+      text: 'Güneydoğu Anadolu\'da unutulan geleneksel zanaatı doğru özelliğiyle eşleştir.',
+      category: 'craft', type: 'drag',
+      options: [
+        'Mardin telkari | 0.3-0.5 mm gümüş tel elle kıvrılıp lehimlenerek örülür',
+        'Gaziantep yemeniciliği | Geleneksel deri çarığın elle biçilip dikilmesi',
+        'Diyarbakır bakırcılığı | Bakır levhanın çekiçle dövülerek kap haline getirilmesi',
+        'Şanlıurfa\'da geleneksel ney yapımı | Kamışın üflenerek ve delinerek çalgıya dönüştürülmesi',
+      ],
+      correct: null,
+      wikiTitle: 'Filigree',
+      imageCaption: 'Güneydoğu Anadolu unutulan zanaatları — teknik eşleştirmesi',
+      explanation: 'Her zanaat kendine özgü teknik gerektirir: Telkari ince tel örme, yemenicilik deri dikme, bakırcılık çekiçle dövme ve ney yapımı kamış delme ve seslendirme üzerine kuruludur.'
+    },
+    {
+      text: 'Güneydoğu\'da yok olmakta olan hangi sözlü gelenek ve müzik unsurları tehlike altındadır?',
+      category: 'music', type: 'multi',
+      options: [
+        'Sıra Gecesi geleneği — haftalık sözlü paylaşım ve müzik buluşması',
+        'Şanlıurfa\'nın mey ve ud eşliğindeki uzun hava geleneği',
+        'Bursa Karagöz oyunu (Marmara\'ya aittir)',
+        'Güneydoğu\'ya özgü Kürtçe ve Arapça türkü geleneği',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Sıra Gecesi',
+      imageCaption: 'Güneydoğu Anadolu\'da yok olmakta olan sözlü gelenek',
+      explanation: 'Sıra Gecesi, Şanlıurfa uzun hava geleneği ve bölgenin çok dilli türkü kültürü Güneydoğu\'nun tehlike altındaki sözlü mirası arasındadır. Karagöz Bursa/Marmara kökenlidir.'
+    },
+    {
+      text: 'Güneydoğu Anadolu\'nun unutulan geleneğini doğru anlamıyla eşleştir.',
+      category: 'music', type: 'drag',
+      options: [
+        'Sıra Gecesi | Şehirde sıra ile birbirinin evine gidilen haftalık müzik-sohbet buluşması',
+        'Mey müziği | Kamıştan yapılan çift dilli nefesli çalgı eşliğinde uzun hava',
+        'Harman geleneği | Buğday hasatında birlikte döğen çevirme ve türkü söyleme',
+        'Mardin taş oyma ustası | Sarı kireç taşını elle oyan bezeme ustası',
+      ],
+      correct: null,
+      wikiTitle: 'Sıra Gecesi',
+      imageCaption: 'Güneydoğu Anadolu unutulan gelenek eşleştirmesi',
+      explanation: 'Sıra Gecesi kentsel sohbet-müzik, mey uzun hava müziği, harman hasat geleneği ve Mardin taş oymacılığı Güneydoğu\'nun farklı boyutlardaki kültürel mirasını oluşturur.'
+    },
+    {
+      text: 'Güneydoğu\'da yok olmakta olan hangi mimari ve kentsel yaşam unsurları tehlike altındadır?',
+      category: 'craft', type: 'multi',
+      options: [
+        'Mardin\'in sarı kireç taşından inşa edilmiş basamaklı taş ev geleneği',
+        'Diyarbakır surlarının siyah bazalt taş yapım tekniği ve ustası',
+        'Bursa Yeşil Cami çini süsleme tekniği (Marmara\'ya aittir)',
+        'Harran\'ın konik kubbeli kerpiç ev (petek ev) yapım geleneği',
+      ],
+      correct: [0, 1, 3],
+      wikiTitle: 'Mardin',
+      imageCaption: 'Güneydoğu Anadolu\'da yok olmakta olan geleneksel mimari',
+      explanation: 'Mardin\'in sarı taş evleri, Diyarbakır bazalt sur yapım tekniği ve Harran\'ın konik kubbeli petek evleri Güneydoğu\'nun koruma gerektiren mimari mirasıdır. Yeşil Cami çini tekniği Bursa\'ya aittir.'
+    },
+  ],
+
+};
+
+// FORGOTTEN_QUESTIONS varsa REGIONS'a ekle
+(function addForgottenQuestions(){
+  if(typeof REGIONS === 'undefined') return;
+  REGIONS.forEach(r=>{
+    if(FORGOTTEN_QUESTIONS[r.id]){
+      r.questions = r.questions.concat(FORGOTTEN_QUESTIONS[r.id]);
+    }
+  });
+})();
+
+if(typeof window !== 'undefined') window.FORGOTTEN_QUESTIONS = FORGOTTEN_QUESTIONS;
