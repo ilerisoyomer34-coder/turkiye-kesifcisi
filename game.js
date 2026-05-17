@@ -1915,7 +1915,7 @@ function openAIChat(){
   const log = $('ai-log');
   if(log){
     log.innerHTML = '';
-    appendAIMessage('assistant', 'Merhaba! Ben Kültürel Miras AI. Türkiye'nin tarihi yapıları, UNESCO mirası, geleneksel el sanatları, yöresel mutfak ve halk kültürü hakkında sorularını yanıtlayabilirim. Ne öğrenmek istersin? 🏛️');
+    appendAIMessage('assistant', "Merhaba! Ben Kültürel Miras AI. Türkiye'nin UNESCO mirası, tarihi yapıları, geleneksel el sanatları, unutulmaya yüz tutmuş zanaatlar ve yöresel kültürü hakkında sorularına cevap verebilirim. Ne öğrenmek istersin? 🏛️");
   }
   showScreen('ai-chat');
   setTimeout(()=>$('ai-input')?.focus(), 400);
