@@ -1880,7 +1880,7 @@ Bunların DIŞINDA kalan konular için (spor, siyaset, matematik, güncel haberl
 Türkçe cevap ver. Kısa, bilgilendirici ve samimi ol.`;
 
 let aiMessages = [];
-const _ak = atob('c2stcHJvai13ZHEtc2gzazhNU2dpMlZnMXpwY3hjMWE3OTAxREZBWkw1a2FHRTRRaFRVMS1FQ0N2NGpQaEJKR0d2Ylpfd3hZX0R1WVBwTlhrM1QzQmxia0ZKelZHdlp4VlF6eVpzR1FIZk9hSUVxZEdFbk83X0s5WXBiX2lQbDlIQU1LZU9GaGg4VFNyNTBLeWJFekhqT1lzNThXczlZUXVOd0E=');
+const _ak = atob('c2stcHJvai1PZjFxUW9KTEZJT3lDZEFGZVVSTEtWeC1XQmZKY255Rl90SlFnT2lFTWJCV2xOcENCMWJ6dTV1OGQ1U3c5bHRLbUplWTZXSG5Ya1QzQmxia0ZKTkszNHVhNlZUZW1nTXhUNEVfTF80THU4bHE5Smg2SUMtM01VbWp1RlU4OVhMOHBhUU8wajFJX01SejVKUFZFeGF3dk13VDNVRUE=');
 
 async function sendAIMessage(){
   const input = $('ai-input');
