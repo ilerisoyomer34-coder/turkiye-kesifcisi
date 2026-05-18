@@ -663,10 +663,10 @@ const REGIONS = [
 
 // ── KARAKTER TİPLERİ ─────────────────────────────────────────
 const CHARACTERS = {
-  seyyah:   { label: 'Seyyah',   icon: '🧭', intro: 'Seyyah olarak bu bölgede her şeyi merakla keşfediyorsun.' },
-  arkeolog: { label: 'Arkeolog', icon: '⛏️', intro: 'Arkeolog gözüyle tarihi katmanları deşerken bulunuyorsun burada.' },
-  kasif:    { label: 'Kaşif',    icon: '🔭', intro: 'Kaşif ruhuyla bilinmezlere dalarak bu bölgeyi araştırıyorsun.' },
-  tarihci:  { label: 'Tarihçi',  icon: '📜', intro: 'Tarihçi kimliğinle geçmişi günümüze bağlayan kanıtları arıyorsun.' },
+  seyyah:   { label: 'Zanaat Ustası',       icon: '🪡', intro: 'Zanaat Ustası olarak bu bölgede kaybolmakta olan el sanatlarının izini sürüyorsun.' },
+  arkeolog: { label: 'Halk Ozanı',          icon: '🪕', intro: 'Halk Ozanı olarak nesli tükenmekte olan türküleri ve sözlü geleneği derliyorsun.' },
+  kasif:    { label: 'Miras Avcısı',        icon: '🗺️', intro: 'Miras Avcısı olarak gizli kalmış kültürel hazineleri ve unutulmuş ritüelleri keşfediyorsun.' },
+  tarihci:  { label: 'Gelenek Koruyucusu', icon: '🛡️', intro: 'Gelenek Koruyucusu olarak yok olmakta olan yaşam biçimlerini gelecek kuşaklara taşıyorsun.' },
 };
 
 // ── KÜLTÜREL MİRAS KARTLARI ───────────────────────────────────
