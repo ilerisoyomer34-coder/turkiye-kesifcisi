@@ -1921,7 +1921,10 @@ async function sendAIMessage(){
     aiMessages.push({ role: 'assistant', content: reply });
     appendAIMessage('assistant', reply);
   } catch(e){
-    appendAIMessage('system', `❌ Hata: ${e.message}`);
+    const msg = e.message === 'Load failed' || e.message === 'Failed to fetch'
+      ? '❌ Bağlantı hatası: API anahtarı geçersiz veya iptal edilmiş olabilir. Lütfen yeni bir OpenAI API anahtarı oluşturun.'
+      : `❌ Hata: ${e.message}`;
+    appendAIMessage('system', msg);
   } finally {
     if(sendBtn){ sendBtn.disabled = false; sendBtn.textContent = 'Gönder'; }
     $('ai-input')?.focus();
