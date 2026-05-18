@@ -1108,8 +1108,37 @@ function enterRegion(rid){
   $('ri-flag').textContent=region.icon;
   $('ri-flag').style.background=`${region.color}33`;
   $('ri-name').textContent=`${region.number}. ${region.name}`;
-  $('ri-story-text').textContent=region.story;
-  $('ri-mission').textContent=region.mission;
+  // Karaktere özel hikaye ve görev metni
+  const CHAR_STORIES = {
+    seyyah: {
+      prefix: '🪡 Zanaat Ustası olarak',
+      angle: 'bu bölgedeki kaybolmakta olan el sanatlarının ve zanaat geleneğinin izini sürüyorsun.',
+      mission: 'Görevin: Bu bölgenin unutulmaya yüz tutmuş el sanatlarını, zanaat ustalarını ve geleneksel üretim tekniklerini keşfet ve belgele.',
+    },
+    arkeolog: {
+      prefix: '🪕 Halk Ozanı olarak',
+      angle: 'bu bölgedeki nesli tükenmekte olan türküleri, masalları ve sözlü geleneği derliyorsun.',
+      mission: 'Görevin: Bu bölgenin yok olmakta olan müzik kültürünü, halk türkülerini ve sözlü miras öğelerini topla ve yaşat.',
+    },
+    kasif: {
+      prefix: '🗺️ Miras Avcısı olarak',
+      angle: 'bu bölgedeki gizli kalmış kültürel hazineleri ve unutulmuş ritüelleri keşfe çıkıyorsun.',
+      mission: 'Görevin: Bu bölgede bilim ve teknolojinin ışığında unutulmuş kültürel mirası, antik yapıları ve kaybolmak üzere olan gelenekleri ortaya çıkar.',
+    },
+    tarihci: {
+      prefix: '🛡️ Gelenek Koruyucusu olarak',
+      angle: 'bu bölgedeki yok olmakta olan gelenekleri, ritüelleri ve yaşam biçimlerini gelecek kuşaklara taşıyorsun.',
+      mission: 'Görevin: Bu bölgenin UNESCO listesindeki ve tescilli kültürel miras öğelerini, unutulmaya yüz tutan gelenek ve göreneklerini koru ve aktar.',
+    },
+  };
+  const cs = CHAR_STORIES[State.character] || null;
+  if(cs){
+    $('ri-story-text').textContent = cs.prefix + ' ' + region.name + '\u2019na geldin. ' + cs.angle + ' ' + region.story;
+    $('ri-mission').textContent = cs.mission;
+  } else {
+    $('ri-story-text').textContent = region.story;
+    $('ri-mission').textContent = region.mission;
+  }
   // SVG rozet
   injectBadgeSvg('ri-badge-icon', region.id, region.icon);
   $('ri-badge-name').textContent=region.badge;
@@ -1183,12 +1212,25 @@ function startQuiz(){
   const r=State.currentRegion;
   // Her testte tam 10 soru: 9 rastgele (drag hariç) + 1 drag (eşleştirme) en sonda
   const QUIZ_SIZE = 10;
+
+  // Karaktere göre kategori önceliği
+  const CHAR_CATEGORY = { seyyah:'craft', arkeolog:'music', kasif:'ai', tarihci:'unesco' };
+  const preferredCat = CHAR_CATEGORY[State.character] || null;
+
   const allShuffled = shuffle(r.questions);
   const dragPool    = allShuffled.filter(q => (q.type||'single') === 'drag');
   const otherPool   = allShuffled.filter(q => (q.type||'single') !== 'drag');
-  const dragQ       = dragPool[0] || null;
-  const others      = otherPool.slice(0, dragQ ? QUIZ_SIZE - 1 : QUIZ_SIZE);
-  const picked      = dragQ ? [...others, dragQ] : others;
+
+  // Drag sorusu: önce karakterin kategorisinden seç
+  const dragQ = (preferredCat && dragPool.find(q => q.category === preferredCat)) || dragPool[0] || null;
+
+  // 9 diğer soru: önce tercih edilen kategoriden, eksik kalırsa diğerlerinden tamamla
+  const needed = dragQ ? QUIZ_SIZE - 1 : QUIZ_SIZE;
+  const preferred = preferredCat ? otherPool.filter(q => q.category === preferredCat) : [];
+  const rest      = otherPool.filter(q => !preferredCat || q.category !== preferredCat);
+  const others    = [...preferred, ...rest].slice(0, needed);
+
+  const picked = dragQ ? [...others, dragQ] : others;
 
   State.shuffledQuestions = picked.map(q=>{
     if(q.type === 'single' || q.type === 'scenario'){
