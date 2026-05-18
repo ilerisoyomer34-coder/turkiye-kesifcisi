@@ -320,7 +320,7 @@ html, body {
    ============================================================ */
 #screen-map {
   flex-direction: column;
-  padding-top: 10px;
+  padding-top: 56px;
   background: linear-gradient(180deg, #070e22 0%, #0a1530 100%);
   overflow: hidden;
 }
@@ -362,7 +362,7 @@ html, body {
   justify-content: center;
   width: 100%;
   flex: 0 1 auto;          /* içerik kadar yer kapla, gerekirse küçül */
-  padding: 64px 20px 4px;  /* alttaki boşluğu kapattık ki rozetler haritaya yapışsın */
+  padding: 4px 20px 4px;   /* header offset screen-map padding-top tarafından karşılanıyor */
 }
 
 .map-title {
@@ -1945,6 +1945,8 @@ html, body {
 
 /* Ekstra buton çubuğu (harita ekranı) */
 .extra-btns-bar {
+  position: relative;
+  z-index: 15;
   display: flex;
   gap: 8px;
   justify-content: center;
