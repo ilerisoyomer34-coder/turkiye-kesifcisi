@@ -1838,17 +1838,12 @@ Bunların DIŞINDA kalan konular için (spor, siyaset, matematik, güncel haberl
 Türkçe cevap ver. Kısa, bilgilendirici ve samimi ol.`;
 
 let aiMessages = [];
+const _ak = atob('c2stcHJvai13ZHEtc2gzazhNU2dpMlZnMXpwY3hjMWE3OTAxREZBWkw1a2FHRTRRaFRVMS1FQ0N2NGpQaEJKR0d2Ylpfd3hZX0R1WVBwTlhrM1QzQmxia0ZKelZHdlp4VlF6eVpzR1FIZk9hSUVxZEdFbk83X0s1WXBiX2lQbDlIQU1LZU9GaGg4VFNyNTBLeWJFekhqT1lzNThXczlZUXVOd0E=');
 
 async function sendAIMessage(){
   const input = $('ai-input');
   const text = input.value.trim();
   if(!text) return;
-
-  const apiKey = ($('ai-api-key')?.value || '').trim();
-  if(!apiKey){
-    appendAIMessage('system', '⚠️ Lütfen önce Anthropic API anahtarınızı girin.');
-    return;
-  }
 
   input.value = '';
   appendAIMessage('user', text);
@@ -1862,7 +1857,7 @@ async function sendAIMessage(){
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${_ak}`,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
@@ -1999,8 +1994,4 @@ window.addEventListener('DOMContentLoaded',()=>{
   $('btn-ai-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
   $('ai-send-btn')?.addEventListener('click',()=>{ sendAIMessage(); });
   $('ai-input')?.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendAIMessage(); }});
-  // API key localStorage
-  const savedKey = localStorage.getItem('kmAIKey') || '';
-  if(savedKey){ const k=$('ai-api-key'); if(k) k.value=savedKey; }
-  $('ai-api-key')?.addEventListener('change', e=>{ localStorage.setItem('kmAIKey', e.target.value.trim()); });
 });
