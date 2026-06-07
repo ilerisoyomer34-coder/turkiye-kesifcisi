@@ -418,6 +418,17 @@ html, body {
   font-size: 10px;
 }
 
+.leaflet-tile-pane {
+  filter: saturate(0.55) contrast(0.9) brightness(1.04);
+}
+
+.leaflet-overlay-pane svg path {
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 1px 2px rgba(255,255,255,0.75)) drop-shadow(0 2px 5px rgba(0,0,0,0.42));
+}
+
 .province-marker-pin {
   width: 26px;
   height: 26px;
@@ -453,15 +464,18 @@ html, body {
 }
 
 .region-polygon {
-  stroke: white;
-  stroke-width: 1.8;
+  stroke: #14203a;
+  stroke-width: 3;
   stroke-linejoin: round;
+  paint-order: stroke fill;
   cursor: pointer;
-  transition: filter 0.2s, opacity 0.2s;
+  filter: drop-shadow(0 1px 2px rgba(255,255,255,0.7)) drop-shadow(0 2px 5px rgba(0,0,0,0.38));
+  transition: filter 0.2s, opacity 0.2s, stroke-width 0.2s;
 }
 .region-polygon:hover {
   filter: brightness(1.15) drop-shadow(0 0 10px rgba(0,0,0,0.35));
-  stroke-width: 3;
+  stroke: #fff;
+  stroke-width: 5;
 }
 .region-polygon.completed {
   opacity: 0.6;

@@ -1475,12 +1475,15 @@ function normalizeProvinceName(name){
 
 function provinceStyle(city, active){
   const color = city?.color || '#4facfe';
+  const completed = city && State.completedRegions[city.id];
   return {
-    color: active ? '#ffffff' : color,
-    weight: active ? 3 : 1.4,
+    color: active ? '#ffffff' : '#14203a',
+    weight: active ? 5 : 2.7,
     fillColor: color,
-    fillOpacity: city && State.completedRegions[city.id] ? 0.34 : 0.16,
-    opacity: 0.95,
+    fillOpacity: completed ? 0.46 : 0.28,
+    opacity: 1,
+    dashArray: active ? '' : '1 0',
+    lineJoin: 'round',
   };
 }
 
