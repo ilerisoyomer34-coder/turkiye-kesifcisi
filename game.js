@@ -1778,9 +1778,10 @@ function enterRegion(rid){
   if(done){
     const totalQuestions = done.totalQuestions || region.questions.length || 5;
     const pct = Math.round(((done.correct || 0) / totalQuestions) * 100);
+    const displayScore = done.maxScore === 100 ? done.score : pct;
     if(startBtn) startBtn.style.display='none';
     if(banner) banner.style.display='flex';
-    if(detail) detail.textContent = `${done.score.toLocaleString('tr-TR')} / ${(done.maxScore||1000).toLocaleString('tr-TR')} puan · ${done.correct || 0}/${totalQuestions} doğru · Başarın %${pct} · ${renderStars(done.stars||0)}`;
+    if(detail) detail.textContent = `${displayScore.toLocaleString('tr-TR')} / 100 puan · ${done.correct || 0}/${totalQuestions} doğru · Başarın %${pct} · ${renderStars(done.stars||0)}`;
     if(tagline) tagline.textContent = 'Kazandığın unvan:';
     if(missionCard) missionCard.style.display='none';
   } else {
@@ -2275,11 +2276,10 @@ function nextQuestion(){
 
 function completeRegion(){
   const region=State.currentRegion;
-  const theoreticalMax = State.quizMaxScore || maxScoreFor(State.shuffledQuestions);
   const questionCount = State.shuffledQuestions.length || region.questions.length || 5;
-  // Her bölge maksimum 1000 puana ölçekle
-  const REGION_MAX = 1000;
-  const scaledScore = Math.min(REGION_MAX, Math.round(State.quizScore / theoreticalMax * REGION_MAX));
+  // Her şehir 100 puan üzerinden, doğru soru oranına göre değerlendirilir.
+  const REGION_MAX = 100;
+  const scaledScore = Math.round((State.quizCorrect / questionCount) * REGION_MAX);
   const stars = starsFor(scaledScore, REGION_MAX);
   // Toplam oturum skorunu da ölçeklendir (ham puanı çıkar, ölçekli ekle)
   State.sessionScore = State.sessionScore - State.quizScore + scaledScore;
@@ -2293,8 +2293,7 @@ function completeRegion(){
   $('bc-score').textContent = REGION_MAX.toLocaleString('tr-TR');
   const maxEl = $('bc-max-score');
   if(maxEl) maxEl.textContent = scaledScore.toLocaleString('tr-TR');
-  // Yüzdelik gösterimi puana değil 5 sorudaki doğru sayısına göre hesaplanır.
-  const pct = Math.round((State.quizCorrect / questionCount) * 100);
+  const pct = scaledScore;
   const pctEl = $('bc-pct'); if(pctEl) pctEl.textContent = `%${pct}`;
   const pctFill = $('bc-pct-fill'); if(pctFill) pctFill.style.width = pct + '%';
   $('bc-fact').textContent=region.funFact;
@@ -2340,8 +2339,8 @@ function showFinalScreen(){
   $('cert-name').textContent=State.playerName;
   $('cert-score').textContent=State.sessionScore.toLocaleString('tr-TR');
   $('cert-date').textContent=new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
-  // Sertifikada toplam başarı yüzdesi (81 il × 1000 puan)
-  const TOTAL_MAX = REGIONS.length * 1000;
+  // Sertifikada toplam başarı yüzdesi (81 il × 100 puan)
+  const TOTAL_MAX = REGIONS.length * 100;
   const overallPct = Math.round(State.sessionScore / TOTAL_MAX * 100);
   const certPctEl = $('cert-pct'); if(certPctEl) certPctEl.textContent = `%${overallPct}`;
   const certPctFill = $('cert-pct-fill'); if(certPctFill) certPctFill.style.width = overallPct + '%';
@@ -2448,7 +2447,7 @@ function showTeacher(){
 
   REGIONS.forEach(r=>{
     const done = State.completedRegions[r.id];
-    const pct = done ? Math.round(done.score/1000*100) : 0;
+    const pct = done ? (done.maxScore === 100 ? done.score : Math.round(((done.correct || 0) / (done.totalQuestions || r.questions.length || 5)) * 100)) : 0;
     const row = el('div',{className:'tp-region-row'});
     row.appendChild(el('span',{className:'tp-region-name', text:`${r.icon} ${r.name}`}));
     const barWrap = el('div',{className:'tp-bar-wrap'});
