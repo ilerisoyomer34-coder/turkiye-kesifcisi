@@ -392,7 +392,9 @@ html, body {
 .leaflet-map {
   width: 100%;
   height: clamp(360px, 56vh, 560px);
-  background: #d8e7dc;
+  background:
+    linear-gradient(180deg, rgba(186, 222, 239, 0.95), rgba(214, 232, 218, 0.95)),
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,0.8), transparent 56%);
   display: block;
 }
 
@@ -414,19 +416,11 @@ html, body {
   color: #182033;
 }
 
-.leaflet-control-attribution {
-  font-size: 10px;
-}
-
-.leaflet-tile-pane {
-  filter: saturate(0.55) contrast(0.9) brightness(1.04);
-}
-
 .leaflet-overlay-pane svg path {
   paint-order: stroke fill;
   stroke-linejoin: round;
   stroke-linecap: round;
-  filter: drop-shadow(0 1px 2px rgba(255,255,255,0.75)) drop-shadow(0 2px 5px rgba(0,0,0,0.42));
+  filter: drop-shadow(0 1px 1px rgba(255,255,255,0.78)) drop-shadow(0 3px 5px rgba(0,0,0,0.28));
 }
 
 .province-marker-pin {
@@ -457,6 +451,31 @@ html, body {
   border: 0;
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+.province-name-label {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: #10213b;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(8px, 0.62vw, 11px);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 0;
+  pointer-events: none;
+  text-align: center;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,0.95),
+    1px 0 0 rgba(255,255,255,0.95),
+    0 -1px 0 rgba(255,255,255,0.95),
+    -1px 0 0 rgba(255,255,255,0.95),
+    0 2px 4px rgba(0,0,0,0.22);
+}
+
+.province-name-label::before {
+  display: none;
 }
 
 .leaflet-interactive {

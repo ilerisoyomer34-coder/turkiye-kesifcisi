@@ -1390,21 +1390,12 @@ function useLegacyMapFallback(){
 function initLeafletMap(hoverCard, rcIcon, rcName, rcStatus){
   if(leafletMap) return;
   leafletMap = L.map('leaflet-map', {
-    zoomControl: true,
+    zoomControl: false,
     scrollWheelZoom: true,
     minZoom: 5,
     maxZoom: 10,
+    attributionControl: false,
   }).setView([39.05, 35.15], 6);
-
-  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap contributors',
-  });
-  tiles.on('tileerror', () => {
-    leafletTileErrors++;
-    if(leafletTileErrors > 8) useLegacyMapFallback();
-  });
-  tiles.addTo(leafletMap);
 
   const bounds = [];
   loadProvinceBoundaries(hoverCard, rcIcon, rcName, rcStatus);
@@ -1425,9 +1416,10 @@ async function loadProvinceBoundaries(hoverCard, rcIcon, rcName, rcStatus){
       style: feature => provinceStyle(provinceFromFeature(feature), false),
       onEachFeature: (feature, layer) => bindProvinceBoundary(feature, layer, hoverCard, rcIcon, rcName, rcStatus),
     }).addTo(leafletMap);
-    provinceBoundaryLayer.bringToBack();
+    leafletMap.fitBounds(provinceBoundaryLayer.getBounds(), { padding: [14, 14] });
   } catch(err){
-    console.warn('İl sınırları yüklenemedi, pinli harita kullanılacak:', err);
+    console.warn('İl sınırları yüklenemedi, yedek harita kullanılacak:', err);
+    useLegacyMapFallback();
   }
 }
 
@@ -1467,10 +1459,11 @@ function bindProvinceBoundary(feature, layer, hoverCard, rcIcon, rcName, rcStatu
   const city = provinceFromFeature(feature);
   if(!city) return;
 
-  layer.bindTooltip(`${city.name} · ${city.badge}`, {
-    className: 'province-tooltip',
+  layer.bindTooltip(city.name, {
+    className: 'province-name-label',
     direction: 'center',
-    sticky: true,
+    permanent: true,
+    opacity: 1,
   });
 
   layer.on({
