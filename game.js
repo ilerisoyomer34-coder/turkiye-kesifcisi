@@ -44,6 +44,15 @@ async function fetchWikiThumb(title) {
   return null;
 }
 
+async function fetchBestWikiThumb(titles) {
+  const candidates = Array.isArray(titles) ? titles : [titles];
+  for (const title of candidates.filter(Boolean)) {
+    const src = await fetchWikiThumb(title);
+    if (src) return src;
+  }
+  return null;
+}
+
 function fallbackQuestionImage(q){
   const city = State.currentRegion || { name: 'Türkiye', icon: '🏛️', color: '#4facfe' };
   const title = q.imageCaption || `${city.name} — Kültürel Miras`;
@@ -818,6 +827,99 @@ const CATEGORY_DETAILS = {
   'Tarihi Miras': { icon:'🏛️', task:'Miras alanı ipuçlarını eşleştirme', practice:'alanı gezerken yapı, anlatı ve koruma kurallarını birlikte öğrenmek', risk:'koruma bilinci olmazsa tarihi çevrenin anlamının zayıflaması' },
 };
 
+const HERITAGE_IMAGE_TITLES = {
+  'Şalgam Kültürü': ['Şalgam suyu', 'Şalgam'],
+  'Nemrut Dağı Anlatıları': ['Nemrut Dağı', 'Mount Nemrut'],
+  'Keçe Sanatı': ['Keçe', 'Felt'],
+  'İshak Paşa Sarayı Mirası': ['İshak Paşa Sarayı', 'Ishak Pasha Palace'],
+  'Ferhat ile Şirin Anlatısı': ['Ferhat ile Şirin', 'Kral Kaya Mezarları'],
+  'Ebru Sanatı': ['Ebru sanatı', 'Ebru (marbling)'],
+  'Yel Bileziği': ['Antalya', 'Yörükler'],
+  'Kafkasör Boğa Güreşleri': ['Kafkasör', 'Artvin'],
+  'Zeybek Kültürü': ['Zeybek dansı', 'Zeybek dance'],
+  'Yağcıbedir Halısı': ['Yağcıbedir halısı', 'Turkish carpet'],
+  'Osmanlı Kuruluş Mirası': ['Osmanlı İmparatorluğu', 'Ottoman Empire'],
+  'Kartal Oyunu': ['Bingöl', 'Folk dance'],
+  'Bitlis Büryanı': ['Büryan', 'Buryan kebab'],
+  'Mengen Aşçılık Geleneği': ['Mengen', 'Turkish cuisine'],
+  'Teke Zortlatması': ['Teke zortlatması', 'Turkish folk dances'],
+  'Karagöz': ['Karagöz ve Hacivat', 'Karagöz and Hacivat'],
+  'Troya Anlatıları': ['Troya', 'Troy'],
+  'Yaran Sohbetleri': ['Yâran', 'Çankırı'],
+  'Hattuşa Mirası': ['Hattuşa', 'Hattusa'],
+  'Buldan Dokuması': ['Buldan', 'Turkish textiles'],
+  'Dengbejlik': ['Dengbêj', 'Dengbej'],
+  'Kırkpınar Yağlı Güreşleri': ['Kırkpınar Yağlı Güreşleri', 'Oil wrestling'],
+  'Harput Kürsübaşı Geleneği': ['Harput', 'Elazığ'],
+  'Bakır İşlemeciliği': ['Bakırcılık', 'Coppersmith'],
+  'Bar Oyunu': ['Bar (dans)', 'Turkish folk dances'],
+  'Lületaşı İşlemeciliği': ['Lületaşı', 'Meerschaum'],
+  'Türk Kahvesi': ['Türk kahvesi', 'Turkish coffee'],
+  'Giresun Karşılaması': ['Karşılama', 'Giresun'],
+  'Pestil ve Köme Geleneği': ['Pestil', 'Gümüşhane'],
+  'Kilim Dokuma': ['Kilim', 'Turkish carpet'],
+  'Antakya Mozaik Mirası': ['Hatay Arkeoloji Müzesi', 'Hatay Archaeology Museum'],
+  'Gülcülük Geleneği': ['Isparta gülü', 'Rose oil'],
+  'Tantuni Kültürü': ['Tantuni', 'Mersin'],
+  'Meddahlık': ['Meddah', 'Meddah storytelling'],
+  'Nazarlık Geleneği': ['Nazar boncuğu', 'Nazar'],
+  'Âşıklık Geleneği': ['Âşıklık geleneği', 'Ashik'],
+  'Ahşap Oymacılığı': ['Ahşap oyma', 'Wood carving'],
+  'Mantı Kültürü': ['Mantı', 'Manti'],
+  'Trakya Kakava Geleneği': ['Kakava', 'Edirne'],
+  'Abdallık Geleneği': ['Abdallar', 'Kırşehir'],
+  'Hereke Halısı': ['Hereke halısı', 'Hereke carpet'],
+  'Mevlevi Sema Töreni': ['Sema', 'Sama (Sufism)'],
+  'Çini Sanatı': ['İznik çinisi', 'Kütahya çinisi'],
+  'Kayısı Kültürü': ['Malatya kayısısı', 'Apricot'],
+  'Mesir Macunu Geleneği': ['Mesir macunu', 'Mesir Paste Festival'],
+  'Maraş Dondurması': ['Maraş dondurması', 'Dondurma'],
+  'Telkari Sanatı': ['Telkari', 'Filigree'],
+  'Yörük Kültürü': ['Yörükler', 'Yörüks'],
+  'Muş Lalesi Anlatıları': ['Muş lalesi', 'Tulipa'],
+  'Nevruz': ['Nevruz', 'Nowruz'],
+  'Niğde Halısı': ['Turkish carpet', 'Halı'],
+  'Fındık Hasadı Geleneği': ['Fındık', 'Hazelnut'],
+  'Horon ve Kemençe Kültürü': ['Horon', 'Kemençe of the Black Sea'],
+  'Taraklı Evleri Mirası': ['Taraklı', 'Sakarya'],
+  'Samsun Halk Oyunları': ['Samsun', 'Turkish folk dances'],
+  'Siirt Battaniyesi': ['Siirt battaniyesi', 'Siirt'],
+  'Kotralık Geleneği': ['Kotra', 'Sinop'],
+  'Halı Dokuma': ['Turkish carpet', 'Carpet weaving'],
+  'Tekirdağ Köftesi Kültürü': ['Tekirdağ köftesi', 'Köfte'],
+  'Keşkek': ['Keşkek', 'Kashkak'],
+  'Kemençe Geleneği': ['Kemençe of the Black Sea', 'Kemençe'],
+  'Munzur İnanç Mirası': ['Munzur Vadisi Millî Parkı', 'Munzur Valley National Park'],
+  'Sıra Gecesi': ['Sıra gecesi', 'Şanlıurfa'],
+  'Uşak Halısı': ['Uşak halısı', 'Ushak carpet'],
+  'Van Kilimi': ['Van kilimi', 'Kilim'],
+  'Sürmeli Türküsü': ['Yozgat', 'Türkü'],
+  'Madenci Kültürü': ['Zonguldak', 'Coal mining'],
+  'Ihlara Vadisi Mirası': ['Ihlara Vadisi', 'Ihlara Valley'],
+  'Dede Korkut Anlatıları': ['Dede Korkut', 'Book of Dede Korkut'],
+  'Türkçe Dil Mirası': ['Türkçe', 'Turkish language'],
+  'Keskin Türküleri': ['Keskin', 'Türkü'],
+  'Hasankeyf Mirası': ['Hasankeyf', 'Batman'],
+  'Şırnak Kilimleri': ['Kilim', 'Şırnak'],
+  'Amasra Tel Kırma': ['Tel kırma', 'Amasra'],
+  'Damlıca Bal Geleneği': ['Bal', 'Honey'],
+  'Koçbaşı Mezar Taşları': ['Koçbaşı mezar taşı', 'Iğdır'],
+  'Termal Kaplıca Mirası': ['Yalova Termal', 'Thermal spring'],
+  'Safranbolu Evleri': ['Safranbolu evleri', 'Safranbolu'],
+  'Kilis Yorgan İşlemeciliği': ['Yorgan', 'Quilt'],
+  'Karatepe Kilim Motifleri': ['Karatepe-Aslantaş', 'Kilim'],
+  'Çerkes Kültürü': ['Çerkesler', 'Circassians'],
+};
+
+function imageTitleCandidates(city){
+  const fromMap = HERITAGE_IMAGE_TITLES[city.item] || [];
+  const cleaned = city.item
+    .replace(/\s+(Kültürü|Geleneği|Mirası|Anlatıları|Anlatısı)$/i, '')
+    .replace(/\s+Kültürü$/i, '')
+    .trim();
+  return [...new Set([...fromMap, city.item, cleaned, `${city.name} ${cleaned}`, city.name].filter(Boolean))];
+}
+
 const WRONG_ITEM_POOL = PROVINCE_SOURCE.map(p => p.item);
 const CITY_SOURCE = PROVINCE_SOURCE.map((city, idx) => {
   const detail = CATEGORY_DETAILS[city.category] || CATEGORY_DETAILS['Halk Kültürü'];
@@ -831,6 +933,7 @@ const CITY_SOURCE = PROVINCE_SOURCE.map((city, idx) => {
     risk: detail.risk,
     heritageHint: `${city.name} için "${city.item}" mirasının hangi kategoriye ait olduğunu, nasıl yaşatıldığını ve neden korunması gerektiğini birlikte düşün.`,
     interviewTask: `Bir aile büyüğünle ${city.item} hakkında kısa röportaj yap: "Bu miras eskiden ne işe yarardı, nasıl yapılırdı veya yaşatılırdı, bugün neden korunmalı?" diye sor.`,
+    imageTitles: imageTitleCandidates(city),
     wrong,
   };
 });
@@ -842,7 +945,7 @@ function cityQuestions(city){
       category: 'unesco', type: 'single',
       options: [city.item, ...city.wrong],
       correct: 0,
-      wikiTitle: city.item,
+      wikiTitle: city.imageTitles,
       imageCaption: `${city.name} — ${city.item}`,
       explanation: `${city.name} bölümünün ana mirası ${city.item}. ${city.fact}`
     },
@@ -857,7 +960,7 @@ function cityQuestions(city){
         'Bu mirasın kültürel aktarım ve öğrenme yönü yoktur.'
       ],
       correct: [0, 1],
-      wikiTitle: city.item,
+      wikiTitle: city.imageTitles,
       imageCaption: `${city.item} — kültürel miras özellikleri`,
       explanation: `${city.item}, ${city.name} ile ilişkilendirilen bir kültürel mirastır; bilgi, uygulama ve aktarım birlikte öğrenilir.`
     },
@@ -871,7 +974,7 @@ function cityQuestions(city){
         `Görev | ${city.task}`
       ],
       correct: null,
-      wikiTitle: city.item,
+      wikiTitle: city.imageTitles,
       imageCaption: `${city.name} kültür pasaportu görevi`,
       explanation: `Kültür pasaportuna ${city.name} damgası eklemek için ${city.item} mirasını ve "${city.task}" görevini doğru eşleştirmelisin.`
     },
@@ -885,7 +988,7 @@ function cityQuestions(city){
         'Yanlış bilgiyi düzeltmeden arkadaşlara aktarmak'
       ],
       correct: 1,
-      wikiTitle: city.item,
+      wikiTitle: city.imageTitles,
       imageCaption: `${city.item} — yaşayan mirası koruma`,
       explanation: `Kültürel miras yalnızca bilgi değildir; ${city.practice} gibi uygulamalarla yaşar. ${city.risk.charAt(0).toLocaleUpperCase('tr-TR') + city.risk.slice(1)}.`
     },
@@ -899,7 +1002,7 @@ function cityQuestions(city){
         'Bu kültürel miras yerine başka şehirdeki rastgele bir geleneği anlatır mısın?'
       ],
       correct: 0,
-      wikiTitle: city.item,
+      wikiTitle: city.imageTitles,
       imageCaption: `${city.name} — aile büyüğü röportaj görevi`,
       explanation: city.interviewTask
     },
@@ -1879,7 +1982,7 @@ function renderQuestion(){
     img.src = src || fallbackSrc;
   };
   if(q.wikiTitle){
-    fetchWikiThumb(q.wikiTitle).then(src=>{
+    fetchBestWikiThumb(q.wikiTitle).then(src=>{
       if(State.currentQIdx !== qi) return;
       showImage(src || fallbackSrc);
     });
