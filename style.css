@@ -939,12 +939,133 @@ html, body {
   width: 58px;
   height: 58px;
   flex: 0 0 58px;
-  display: grid;
-  place-items: center;
+  position: relative;
   border-radius: 50%;
   background: linear-gradient(145deg, #f9c74f, #43e97b);
   box-shadow: 0 10px 28px rgba(0,0,0,0.3);
-  font-size: 2rem;
+  overflow: hidden;
+}
+
+.dede-face {
+  position: absolute;
+  left: 10px;
+  top: 9px;
+  width: 38px;
+  height: 42px;
+  border-radius: 48% 48% 44% 44%;
+  background: #f3c79f;
+  box-shadow: inset 0 -6px 0 rgba(160, 101, 65, 0.16);
+}
+
+.dede-hair {
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  width: 42px;
+  height: 20px;
+  border-radius: 22px 22px 10px 10px;
+  background: #eef2f7;
+  box-shadow:
+    -9px 8px 0 -3px #eef2f7,
+    9px 8px 0 -3px #eef2f7,
+    inset 0 -4px 0 rgba(120,130,150,0.22);
+  z-index: 2;
+}
+
+.dede-brow {
+  position: absolute;
+  top: 14px;
+  width: 10px;
+  height: 3px;
+  border-radius: 5px;
+  background: #ffffff;
+  z-index: 4;
+}
+
+.dede-brow.left { left: 7px; transform: rotate(-8deg); }
+.dede-brow.right { right: 7px; transform: rotate(8deg); }
+
+.dede-eye {
+  position: absolute;
+  top: 20px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #273149;
+  z-index: 4;
+}
+
+.dede-eye.left { left: 12px; }
+.dede-eye.right { right: 12px; }
+
+.dede-glasses {
+  position: absolute;
+  left: 6px;
+  top: 17px;
+  width: 26px;
+  height: 10px;
+  border: 2px solid rgba(49, 61, 89, 0.82);
+  border-left-width: 2px;
+  border-right-width: 2px;
+  border-radius: 9px;
+  z-index: 3;
+}
+
+.dede-glasses::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 3px;
+  width: 4px;
+  height: 2px;
+  background: rgba(49, 61, 89, 0.82);
+}
+
+.dede-nose {
+  position: absolute;
+  left: 17px;
+  top: 23px;
+  width: 5px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(180, 112, 74, 0.55);
+  z-index: 4;
+}
+
+.dede-mustache {
+  position: absolute;
+  left: 10px;
+  top: 31px;
+  width: 18px;
+  height: 7px;
+  border-radius: 0 0 14px 14px;
+  background: #f5f7fb;
+  z-index: 5;
+}
+
+.dede-mustache::before,
+.dede-mustache::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  width: 12px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f5f7fb;
+}
+
+.dede-mustache::before { left: -6px; transform: rotate(16deg); }
+.dede-mustache::after { right: -6px; transform: rotate(-16deg); }
+
+.dede-beard {
+  position: absolute;
+  left: 8px;
+  bottom: -3px;
+  width: 22px;
+  height: 16px;
+  border-radius: 0 0 15px 15px;
+  background: #e9edf5;
+  z-index: 3;
 }
 
 .quiz-host-bubble {
