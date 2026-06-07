@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Türkiye Kültürel Miras Avcısı | TÜBİTAK 4006</title>
+  <title>Kültür Kaşifleri: Anadolu'nun Gizli Mirası | TÜBİTAK 4006</title>
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4facfe">
@@ -12,11 +12,12 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Miras Avcısı">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <meta name="description" content="Hikayeleştirilmiş oyun tabanlı coğrafya öğrenme ortamı — TÜBİTAK 4006 Projesi">
+  <meta name="description" content="Şehir şehir kültürel miras keşfi — TÜBİTAK 4006 Projesi">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
   <div id="game-container">
@@ -25,14 +26,13 @@
     <div id="screen-intro" class="screen active">
       <div class="particles" id="particles-intro"></div>
       <div class="intro-content">
-        <h1 class="game-title">TÜRKİYE<br><span class="game-title-sub">KÜLTÜREL MİRAS AVCISI</span></h1>
-        <p class="game-subtitle">7 Bölge · UNESCO · Kategori × Tip İlerleme</p>
+        <h1 class="game-title">KÜLTÜR KAŞİFLERİ<br><span class="game-title-sub">ANADOLU'NUN GİZLİ MİRASI</span></h1>
+        <p class="game-subtitle">81 İl · Kültür Pasaportu · Kültürel Miras Soruları</p>
         <div class="badge-row">
-          <span class="badge-chip">🏛️ UNESCO & Tarihi Yapılar</span>
-          <span class="badge-chip">🍲 Geleneksel Mutfak</span>
-          <span class="badge-chip">🧵 El Sanatları</span>
-          <span class="badge-chip">🎶 Müzik & Folklor</span>
-          <span class="badge-chip">🤖 Yapay Zeka & Teknoloji</span>
+          <span class="badge-chip">🏛️ Kültürel Miras Bilgisi</span>
+          <span class="badge-chip">🍲 Geleneksel Sofra</span>
+          <span class="badge-chip">🧵 El Sanatı & Zanaat</span>
+          <span class="badge-chip">🎶 Sözlü Kültür & Gösteri</span>
         </div>
         <div class="intro-buttons">
           <button class="btn-primary" id="btn-start">MACERAYA BAŞLA</button>
@@ -54,7 +54,7 @@
       <div class="modal-card">
         <div class="modal-icon">👨‍🎓</div>
         <h2>Kaşifin kim?</h2>
-        <p>Türkiye'nin 7 coğrafi bölgesini keşfetmek için adını gir!</p>
+        <p>Türkiye haritasında şehir şehir kültürel miras keşfetmek için adını gir!</p>
         <input type="text" id="player-name-input" placeholder="Adın ve Soyadın..." maxlength="30" autocomplete="off">
         <button class="btn-primary" id="btn-enter-game">Keşfe Çık!</button>
         <button class="btn-ghost" id="btn-back-intro">Geri</button>
@@ -68,7 +68,7 @@
           <span class="player-label" id="header-player-name">Kaşif</span>
         </div>
         <div class="header-center">
-          <span class="progress-text" id="progress-text">0/7 Bölge Tamamlandı</span>
+          <span class="progress-text" id="progress-text">0/81 İl Tamamlandı</span>
         </div>
         <div class="header-right">
           <span class="score-display">Puan: <strong id="total-score">0</strong></span>
@@ -76,17 +76,11 @@
       </header>
 
       <button id="btn-progress-open" class="btn-secondary btn-progress-open" type="button" aria-label="İlerleme detaylarını aç">🏆 İlerleme Detayları</button>
-      <div class="extra-btns-bar">
-        <button class="extra-btn" id="btn-open-cards">🃏 Kartlarım</button>
-        <button class="extra-btn" id="btn-open-digital">🖥️ Dijital Vatandaşlık</button>
-        <button class="extra-btn" id="btn-open-teacher">📊 Öğretmen Paneli</button>
-        <button class="extra-btn ai-btn" id="btn-open-ai">🤖 Yapay Zekaya Danış</button>
-      </div>
-
       <div class="map-wrapper">
-        <h2 class="map-title">Keşfetmek istediğin bölgeyi seç!</h2>
+        <h2 class="map-title">İl sınırlarından veya işaretçilerden keşfetmek istediğin ili seç!</h2>
         <div class="map-container">
-          <svg id="turkey-map" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet">
+          <div id="leaflet-map" class="leaflet-map" aria-label="Türkiye il haritası"></div>
+          <svg id="turkey-map" class="legacy-map-fallback" viewBox="0 0 1000 540" preserveAspectRatio="xMidYMid meet">
           <defs>
             <filter id="rgn-shadow" x="-5%" y="-5%" width="110%" height="110%">
               <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="rgba(0,0,0,0.25)"/>
@@ -121,7 +115,7 @@
         </svg>
         </div>
 
-        <!-- Bölge Bilgi Kartı -->
+        <!-- Şehir/Bölge Bilgi Kartı -->
         <div class="region-info-card" id="region-hover-card" style="display:none;">
           <span class="region-card-icon" id="rc-icon"></span>
           <div>
@@ -131,8 +125,6 @@
         </div>
       </div>
 
-      <!-- Alt Rozet Çubuğu -->
-      <div class="badges-strip" id="badges-strip"></div>
     </div>
 
     <!-- EKRAN 4: BÖLGE GİRİŞ (HIKAYE) -->
@@ -142,7 +134,7 @@
         <div class="region-intro-header">
           <div class="region-flag" id="ri-flag"></div>
           <div>
-            <p class="region-intro-label">Görev Bölgesi</p>
+            <p class="region-intro-label">Görev Şehri</p>
             <h2 id="ri-name"></h2>
           </div>
         </div>
@@ -157,7 +149,7 @@
         <div class="badge-preview-card">
           <span id="ri-badge-icon"></span>
           <div>
-            <small id="ri-badge-tagline">Bu bölgeyi tamamlarsan kazanacağın unvan:</small>
+            <small id="ri-badge-tagline">Bu şehri tamamlarsan kazanacağın unvan:</small>
             <strong id="ri-badge-name"></strong>
           </div>
         </div>
@@ -165,9 +157,9 @@
         <div id="ri-completed-banner" class="ri-completed-banner" style="display:none">
           <div class="ri-cb-icon">✓</div>
           <div class="ri-cb-body">
-            <strong>Bu bölge tamamlandı!</strong>
+            <strong>Bu şehir tamamlandı!</strong>
             <span id="ri-completed-detail">—</span>
-            <small>Bir bölge bir kez oynanır — ilerlemen kalıcı olarak kaydedildi.</small>
+            <small>Bir şehir bir kez oynanır — ilerlemen kalıcı olarak kaydedildi.</small>
           </div>
         </div>
         <div class="ri-buttons">
@@ -195,6 +187,18 @@
 
       <div class="quiz-body">
         <div class="question-number" id="q-number">Soru 1/4</div>
+        <div class="quiz-host-card">
+          <div class="quiz-host-avatar">🧓</div>
+          <div class="quiz-host-bubble">
+            <div class="quiz-host-topline">
+              <strong id="quiz-host-name">Bilge Dede</strong>
+              <button class="hint-btn" id="btn-question-hint" type="button" aria-label="İpucu göster">?</button>
+            </div>
+            <span id="quiz-host-line">Hazırsan kültür sandığını açıyoruz!</span>
+            <div class="question-text question-text-in-bubble" id="q-text"></div>
+            <div class="question-hint" id="question-hint" style="display:none;"></div>
+          </div>
+        </div>
         <div class="quiz-content-row">
           <div class="q-image-wrap" id="q-image-wrap" style="display:none">
             <div class="q-image-loader" id="q-image-loader">
@@ -205,7 +209,6 @@
             <span class="q-image-caption" id="q-image-caption"></span>
           </div>
           <div class="quiz-text-col">
-            <div class="question-text" id="q-text"></div>
             <div class="options-grid" id="q-options"></div>
           </div>
         </div>
@@ -233,7 +236,7 @@
           <p id="bc-region-name"></p>
         </div>
         <div class="region-score-box">
-          <span>Bölge Puanı:</span>
+          <span>Şehir Puanı:</span>
           <strong id="bc-max-score">1.000</strong>
           <span class="bc-slash">/</span>
           <strong id="bc-score" class="bc-achieved">0</strong>
@@ -257,7 +260,7 @@
         <div class="final-trophy">🏆</div>
         <h1 class="final-title">Tebrikler!</h1>
         <h2 class="final-player-name" id="final-player-name"></h2>
-        <p class="final-subtitle">Türkiye'nin tüm 7 coğrafi bölgesini başarıyla keşfettin!</p>
+        <p class="final-subtitle">Türkiye'nin 81 ilindeki kültürel miras görevlerini başarıyla keşfettin!</p>
 
         <div class="final-badges-grid" id="final-badges-grid"></div>
 
@@ -278,10 +281,10 @@
 
         <div class="certificate-box" id="certificate-box">
           <div class="cert-logo">🗺️</div>
-          <h3>COĞRAFİ UZMANLIK SERTİFİKASI</h3>
+          <h3>KÜLTÜREL MİRAS KAŞİFİ SERTİFİKASI</h3>
           <p>Bu belge,</p>
           <h2 id="cert-name"></h2>
-          <p>adlı öğrencinin "Türkiye'yi Keşfet" eğitsel oyununu başarıyla tamamladığını ve</p>
+          <p>adlı öğrencinin "Kültür Kaşifleri" eğitsel oyununu başarıyla tamamladığını ve</p>
           <div class="cert-score-big" id="cert-score"></div>
           <p>puan aldığını belgeler.</p>
           <div class="cert-percentage-box">
@@ -310,17 +313,17 @@
         <h2>Proje Hakkında</h2>
         <div class="about-card">
           <h3>Proje Adı</h3>
-          <p>Hikayeleştirilmiş Oyun Tabanlı Öğrenme: "Türkiye'yi Keşfet" Macera Senaryosu</p>
+          <p>Hikayeleştirilmiş Oyun Tabanlı Öğrenme: "Kültür Kaşifleri" Macera Senaryosu</p>
         </div>
         <div class="about-card">
           <h3>Amaç</h3>
-          <p>Ortaokul öğrencilerinin Türkiye'nin coğrafi bölgelerine ilişkin temel bilgileri daha kalıcı ve anlamlı öğrenmelerini desteklemek amacıyla hikâyeleştirilmiş oyun tabanlı bir dijital öğrenme ortamı tasarlamak ve etkililiğini incelemek.</p>
+          <p>Ortaokul öğrencilerinin Türkiye'nin şehir şehir kültürel miras öğelerini daha kalıcı ve anlamlı öğrenmelerini desteklemek amacıyla hikâyeleştirilmiş oyun tabanlı bir dijital öğrenme ortamı tasarlamak ve etkililiğini incelemek.</p>
         </div>
         <div class="about-card">
           <h3>Özellikler</h3>
           <ul>
-            <li>7 coğrafi bölge, her biri özgün bir görev</li>
-            <li>28 eğitsel soru + açıklayıcı geri bildirim</li>
+            <li>81 il, her biri kendine özel kültürel miras görevi</li>
+            <li>405 il özelinde kültürel miras sorusu + açıklayıcı geri bildirim</li>
             <li>Unvan ve rozet sistemi (gamification)</li>
             <li>Anlık puan takibi ve yıldız değerlendirme</li>
             <li>Sertifika oluşturma ve yazdırma</li>
@@ -345,7 +348,7 @@
         <header class="pm-header">
           <div class="pm-title-group">
             <h2 id="progress-modal-title" class="pm-title">İlerleme Detayları</h2>
-            <p class="pm-subtitle">Bölgeler · Kategoriler · Soru Tipleri</p>
+          <p class="pm-subtitle">Şehirler · Kültürel Miras Kategorileri · Soru Tipleri</p>
           </div>
           <div class="pm-header-actions">
             <button id="btn-progress-reset" class="btn-ghost" type="button" aria-label="Tüm ilerlemeyi sıfırla">İlerlemeyi Sıfırla</button>
@@ -353,6 +356,10 @@
           </div>
         </header>
         <section class="pm-body">
+          <div class="pm-badges-section">
+            <h3 class="pm-section-title">Kültür Rozetleri</h3>
+            <div class="badges-strip progress-badges-strip" id="progress-badges-strip"></div>
+          </div>
           <div id="progress-modal-body"></div>
         </section>
         <footer class="pm-footer">
@@ -382,41 +389,11 @@
     </div>
 
 
-    <!-- EKRAN: KARAKTER SEÇİMİ -->
-    <div id="screen-character" class="screen">
-      <div class="intro-content" style="max-width:620px">
-        <h2 style="font-size:1.8rem;margin-bottom:.4em">Rolünü Seç</h2>
-        <p style="color:var(--text-dim);margin-bottom:1.4em">Unutulmaya yüz tutmuş kültürel mirası hangi gözle koruyacaksın?</p>
-        <div class="character-grid">
-          <button class="char-btn" data-char="seyyah">
-            <span class="char-icon">🪡</span>
-            <strong>Zanaat Ustası</strong>
-            <small>Kaybolmakta olan el sanatlarını araştırır, geleneksel teknikleri belgeler</small>
-          </button>
-          <button class="char-btn" data-char="arkeolog">
-            <span class="char-icon">🪕</span>
-            <strong>Halk Ozanı</strong>
-            <small>Nesli tükenmekte olan türküleri, masalları ve sözlü geleneği derler</small>
-          </button>
-          <button class="char-btn" data-char="kasif">
-            <span class="char-icon">🗺️</span>
-            <strong>Miras Avcısı</strong>
-            <small>Gizli kalmış kültürel hazineleri ve unutulmuş ritüelleri keşfe çıkar</small>
-          </button>
-          <button class="char-btn" data-char="tarihci">
-            <span class="char-icon">🛡️</span>
-            <strong>Gelenek Koruyucusu</strong>
-            <small>Yok olmakta olan gelenekleri ve yaşam biçimlerini gelecek kuşaklara taşır</small>
-          </button>
-        </div>
-      </div>
-    </div>
-
     <!-- EKRAN: MİRAS KARTLARI -->
     <div id="screen-cards" class="screen">
       <div class="fullscreen-content">
         <h2 class="fc-title">🃏 Kültürel Miras Kartlarım</h2>
-        <p class="fc-sub" id="cards-summary">Bölgeleri tamamlayarak kart kazan!</p>
+        <p class="fc-sub" id="cards-summary">Şehirleri tamamlayarak kart kazan!</p>
         <div class="heritage-grid" id="heritage-grid"></div>
         <button class="btn-secondary" id="btn-cards-back">← Haritaya Dön</button>
       </div>
@@ -478,7 +455,8 @@
   </div>
 
   <script src="region-badges.js?v=22"></script>
-  <script src="game.js?v=23"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="game.js?v=37"></script>
   <script src="questions-extended.js?v=22"></script>
   <script>
     /* ── PWA Kaydı ── */
@@ -488,6 +466,19 @@
 
       init() {
         if (!('serviceWorker' in navigator)) return;
+
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+          Promise.all([
+            navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister()))),
+            window.caches ? caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key)))) : Promise.resolve(),
+          ]).then(() => {
+            if (navigator.serviceWorker.controller && !sessionStorage.getItem('sw-cleared-once')) {
+              sessionStorage.setItem('sw-cleared-once', '1');
+              location.reload();
+            }
+          });
+          return;
+        }
 
         // Service Worker kaydet
         navigator.serviceWorker.register('./sw.js', { scope: './' })

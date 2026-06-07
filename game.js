@@ -7,13 +7,12 @@
 
 // ── KÜLTÜREL MİRAS KATEGORİLERİ ──────────────────────────────
 const CATEGORIES = {
-  unesco:  { label: 'UNESCO & Tarihi Yapılar',  icon: '🏛️', color: '#f9c74f' },
-  cuisine: { label: 'Geleneksel Mutfak',         icon: '🍲', color: '#e76f51' },
-  craft:   { label: 'El Sanatları & Zanaat',     icon: '🧵', color: '#a855f7' },
-  music:   { label: 'Müzik, Dans & Folklor',     icon: '🎶', color: '#43e97b' },
-  ai:      { label: 'Yapay Zeka & Teknoloji',    icon: '🤖', color: '#4facfe' },
+  unesco:  { label: 'Kültürel Miras Bilgisi', icon: '🏛️', color: '#f9c74f' },
+  cuisine: { label: 'Geleneksel Sofra',       icon: '🍲', color: '#e76f51' },
+  craft:   { label: 'El Sanatı & Zanaat',     icon: '🧵', color: '#a855f7' },
+  music:   { label: 'Sözlü Kültür & Gösteri', icon: '🎶', color: '#43e97b' },
 };
-const CATEGORY_KEYS = ['unesco','cuisine','craft','music','ai'];
+const CATEGORY_KEYS = ['unesco','cuisine','craft','music'];
 
 // ── SORU TİPLERİ ─────────────────────────────────────────────
 const QUESTION_TYPES = {
@@ -43,6 +42,49 @@ async function fetchWikiThumb(title) {
   }
   _wikiCache[title] = null;
   return null;
+}
+
+function fallbackQuestionImage(q){
+  const city = State.currentRegion || { name: 'Türkiye', icon: '🏛️', color: '#4facfe' };
+  const title = q.imageCaption || `${city.name} — Kültürel Miras`;
+  const type = QUESTION_TYPES[q.type]?.label || 'Soru';
+  const cat = CATEGORIES[q.category]?.label || 'Kültürel Miras';
+  const color = city.color || '#4facfe';
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620">
+      <defs>
+        <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#10182f"/>
+          <stop offset="0.55" stop-color="${color}"/>
+          <stop offset="1" stop-color="#0b1025"/>
+        </linearGradient>
+        <radialGradient id="glow" cx="35%" cy="30%" r="70%">
+          <stop offset="0" stop-color="#ffffff" stop-opacity=".38"/>
+          <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+        <pattern id="dots" width="34" height="34" patternUnits="userSpaceOnUse">
+          <circle cx="5" cy="5" r="2" fill="#fff" opacity=".18"/>
+        </pattern>
+      </defs>
+      <rect width="900" height="620" rx="38" fill="url(#bg)"/>
+      <rect width="900" height="620" fill="url(#glow)"/>
+      <rect width="900" height="620" fill="url(#dots)" opacity=".45"/>
+      <circle cx="450" cy="220" r="108" fill="#fff" opacity=".18"/>
+      <text x="450" y="255" text-anchor="middle" font-size="118" font-family="Arial, sans-serif">${city.icon || '🏛️'}</text>
+      <text x="450" y="390" text-anchor="middle" font-size="42" font-weight="800" fill="#fff" font-family="Arial, sans-serif">${escapeSvg(city.name)}</text>
+      <text x="450" y="445" text-anchor="middle" font-size="30" font-weight="700" fill="#fff" opacity=".92" font-family="Arial, sans-serif">${escapeSvg(title).slice(0, 46)}</text>
+      <rect x="230" y="492" width="440" height="54" rx="27" fill="#000" opacity=".28"/>
+      <text x="450" y="528" text-anchor="middle" font-size="22" font-weight="700" fill="#fff" font-family="Arial, sans-serif">${escapeSvg(cat)} · ${escapeSvg(type)}</text>
+    </svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function escapeSvg(text){
+  return String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // ── BÖLGE VERİLERİ ───────────────────────────────────────────
@@ -661,12 +703,244 @@ const REGIONS = [
   });
 })();
 
+// ── ŞEHİR TABANLI TÜBİTAK İÇERİĞİ ───────────────────────────
+// Dokümandaki "Kültür Kaşifleri: Anadolu'nun Gizli Mirası" fikrine göre
+// oyun birimi bölge değil şehirdir. Bölgeler haritada görsel sınır olarak kalır.
+const MAP_REGION_INFO = {
+  'karadeniz':     { name: 'Karadeniz Bölgesi', color: '#72B841', icon: '🌲' },
+  'marmara':       { name: 'Marmara Bölgesi', color: '#F5A42A', icon: '🌉' },
+  'ege':           { name: 'Ege Bölgesi', color: '#9B59B6', icon: '🌊' },
+  'ic-anadolu':    { name: 'İç Anadolu Bölgesi', color: '#F4D03F', icon: '🌾' },
+  'dogu-anadolu':  { name: 'Doğu Anadolu Bölgesi', color: '#5B9BD5', icon: '🏔️' },
+  'guneydogu':     { name: 'Güneydoğu Anadolu Bölgesi', color: '#E07B6A', icon: '☀️' },
+  'akdeniz':       { name: 'Akdeniz Bölgesi', color: '#1BBFB0', icon: '🍊' },
+};
+
+const PROVINCE_SOURCE = [
+  { id:'adana', name:'Adana', region:'akdeniz', x:565, y:410, item:'Şalgam Kültürü', category:'Yerel Kültür' },
+  { id:'adiyaman', name:'Adıyaman', region:'guneydogu', x:690, y:370, item:'Nemrut Dağı Anlatıları', category:'Sözlü Kültür' },
+  { id:'afyonkarahisar', name:'Afyonkarahisar', region:'ege', x:315, y:350, item:'Keçe Sanatı', category:'El Sanatı' },
+  { id:'agri', name:'Ağrı', region:'dogu-anadolu', x:885, y:215, item:'İshak Paşa Sarayı Mirası', category:'Tarihi Miras' },
+  { id:'amasya', name:'Amasya', region:'karadeniz', x:500, y:225, item:'Ferhat ile Şirin Anlatısı', category:'Sözlü Kültür' },
+  { id:'ankara', name:'Ankara', region:'ic-anadolu', x:360, y:280, item:'Ebru Sanatı', category:'El Sanatı' },
+  { id:'antalya', name:'Antalya', region:'akdeniz', x:330, y:440, item:'Yel Bileziği', category:'Halk Kültürü' },
+  { id:'artvin', name:'Artvin', region:'karadeniz', x:820, y:132, item:'Kafkasör Boğa Güreşleri', category:'Festival' },
+  { id:'aydin', name:'Aydın', region:'ege', x:160, y:390, item:'Zeybek Kültürü', category:'Gösteri Sanatı' },
+  { id:'balikesir', name:'Balıkesir', region:'marmara', x:150, y:300, item:'Yağcıbedir Halısı', category:'El Sanatı' },
+  { id:'bilecik', name:'Bilecik', region:'marmara', x:240, y:265, item:'Osmanlı Kuruluş Mirası', category:'Tarihi Miras' },
+  { id:'bingol', name:'Bingöl', region:'dogu-anadolu', x:735, y:300, item:'Kartal Oyunu', category:'Gösteri Sanatı' },
+  { id:'bitlis', name:'Bitlis', region:'dogu-anadolu', x:825, y:310, item:'Bitlis Büryanı', category:'Geleneksel Yemek' },
+  { id:'bolu', name:'Bolu', region:'karadeniz', x:315, y:225, item:'Mengen Aşçılık Geleneği', category:'Geleneksel Yemek' },
+  { id:'burdur', name:'Burdur', region:'akdeniz', x:305, y:405, item:'Teke Zortlatması', category:'Gösteri Sanatı' },
+  { id:'bursa', name:'Bursa', region:'marmara', x:205, y:258, item:'Karagöz', category:'Gösteri Sanatı' },
+  { id:'canakkale', name:'Çanakkale', region:'marmara', x:75, y:275, item:'Troya Anlatıları', category:'Sözlü Kültür' },
+  { id:'cankiri', name:'Çankırı', region:'ic-anadolu', x:390, y:235, item:'Yaran Sohbetleri', category:'Toplumsal Gelenek' },
+  { id:'corum', name:'Çorum', region:'karadeniz', x:470, y:245, item:'Hattuşa Mirası', category:'Tarihi Miras' },
+  { id:'denizli', name:'Denizli', region:'ege', x:220, y:385, item:'Buldan Dokuması', category:'El Sanatı' },
+  { id:'diyarbakir', name:'Diyarbakır', region:'guneydogu', x:760, y:355, item:'Dengbejlik', category:'Sözlü Kültür' },
+  { id:'edirne', name:'Edirne', region:'marmara', x:95, y:200, item:'Kırkpınar Yağlı Güreşleri', category:'Festival' },
+  { id:'elazig', name:'Elazığ', region:'dogu-anadolu', x:690, y:325, item:'Harput Kürsübaşı Geleneği', category:'Toplumsal Gelenek' },
+  { id:'erzincan', name:'Erzincan', region:'dogu-anadolu', x:675, y:250, item:'Bakır İşlemeciliği', category:'El Sanatı' },
+  { id:'erzurum', name:'Erzurum', region:'dogu-anadolu', x:765, y:225, item:'Bar Oyunu', category:'Gösteri Sanatı' },
+  { id:'eskisehir', name:'Eskişehir', region:'ic-anadolu', x:285, y:295, item:'Lületaşı İşlemeciliği', category:'El Sanatı' },
+  { id:'gaziantep', name:'Gaziantep', region:'guneydogu', x:660, y:425, item:'Türk Kahvesi', category:'Toplumsal Uygulama' },
+  { id:'giresun', name:'Giresun', region:'karadeniz', x:635, y:165, item:'Giresun Karşılaması', category:'Gösteri Sanatı' },
+  { id:'gumushane', name:'Gümüşhane', region:'karadeniz', x:690, y:185, item:'Pestil ve Köme Geleneği', category:'Geleneksel Yemek' },
+  { id:'hakkari', name:'Hakkari', region:'dogu-anadolu', x:900, y:355, item:'Kilim Dokuma', category:'El Sanatı' },
+  { id:'hatay', name:'Hatay', region:'akdeniz', x:610, y:470, item:'Antakya Mozaik Mirası', category:'Tarihi Miras' },
+  { id:'isparta', name:'Isparta', region:'akdeniz', x:335, y:385, item:'Gülcülük Geleneği', category:'Toplumsal Gelenek' },
+  { id:'mersin', name:'Mersin', region:'akdeniz', x:505, y:435, item:'Tantuni Kültürü', category:'Geleneksel Yemek' },
+  { id:'istanbul', name:'İstanbul', region:'marmara', x:150, y:220, item:'Meddahlık', category:'Sözlü Anlatım' },
+  { id:'izmir', name:'İzmir', region:'ege', x:130, y:365, item:'Nazarlık Geleneği', category:'Halk İnancı' },
+  { id:'kars', name:'Kars', region:'dogu-anadolu', x:850, y:178, item:'Âşıklık Geleneği', category:'Sözlü Gelenek' },
+  { id:'kastamonu', name:'Kastamonu', region:'karadeniz', x:390, y:185, item:'Ahşap Oymacılığı', category:'El Sanatı' },
+  { id:'kayseri', name:'Kayseri', region:'ic-anadolu', x:535, y:330, item:'Mantı Kültürü', category:'Geleneksel Yemek' },
+  { id:'kirklareli', name:'Kırklareli', region:'marmara', x:120, y:180, item:'Trakya Kakava Geleneği', category:'Ritüel' },
+  { id:'kirsehir', name:'Kırşehir', region:'ic-anadolu', x:455, y:300, item:'Abdallık Geleneği', category:'Sözlü Gelenek' },
+  { id:'kocaeli', name:'Kocaeli', region:'marmara', x:195, y:225, item:'Hereke Halısı', category:'El Sanatı' },
+  { id:'konya', name:'Konya', region:'ic-anadolu', x:440, y:380, item:'Mevlevi Sema Töreni', category:'Ritüel' },
+  { id:'kutahya', name:'Kütahya', region:'ege', x:255, y:315, item:'Çini Sanatı', category:'El Sanatı' },
+  { id:'malatya', name:'Malatya', region:'dogu-anadolu', x:640, y:340, item:'Kayısı Kültürü', category:'Geleneksel Yemek' },
+  { id:'manisa', name:'Manisa', region:'ege', x:150, y:335, item:'Mesir Macunu Geleneği', category:'Festival' },
+  { id:'kahramanmaras', name:'Kahramanmaraş', region:'akdeniz', x:625, y:390, item:'Maraş Dondurması', category:'Geleneksel Yemek' },
+  { id:'mardin', name:'Mardin', region:'guneydogu', x:815, y:395, item:'Telkari Sanatı', category:'El Sanatı' },
+  { id:'mugla', name:'Muğla', region:'ege', x:210, y:430, item:'Yörük Kültürü', category:'Toplumsal Yaşam' },
+  { id:'mus', name:'Muş', region:'dogu-anadolu', x:795, y:290, item:'Muş Lalesi Anlatıları', category:'Halk Kültürü' },
+  { id:'nevsehir', name:'Nevşehir', region:'ic-anadolu', x:500, y:315, item:'Nevruz', category:'Ritüel' },
+  { id:'nigde', name:'Niğde', region:'ic-anadolu', x:500, y:365, item:'Niğde Halısı', category:'El Sanatı' },
+  { id:'ordu', name:'Ordu', region:'karadeniz', x:605, y:160, item:'Fındık Hasadı Geleneği', category:'Toplumsal Gelenek' },
+  { id:'rize', name:'Rize', region:'karadeniz', x:755, y:145, item:'Horon ve Kemençe Kültürü', category:'Gösteri Sanatı' },
+  { id:'sakarya', name:'Sakarya', region:'marmara', x:250, y:225, item:'Taraklı Evleri Mirası', category:'Tarihi Miras' },
+  { id:'samsun', name:'Samsun', region:'karadeniz', x:520, y:165, item:'Samsun Halk Oyunları', category:'Gösteri Sanatı' },
+  { id:'siirt', name:'Siirt', region:'guneydogu', x:840, y:350, item:'Siirt Battaniyesi', category:'El Sanatı' },
+  { id:'sinop', name:'Sinop', region:'karadeniz', x:440, y:145, item:'Kotralık Geleneği', category:'El Sanatı' },
+  { id:'sivas', name:'Sivas', region:'ic-anadolu', x:580, y:290, item:'Halı Dokuma', category:'El Sanatı' },
+  { id:'tekirdag', name:'Tekirdağ', region:'marmara', x:110, y:225, item:'Tekirdağ Köftesi Kültürü', category:'Geleneksel Yemek' },
+  { id:'tokat', name:'Tokat', region:'karadeniz', x:540, y:245, item:'Keşkek', category:'Geleneksel Yemek' },
+  { id:'trabzon', name:'Trabzon', region:'karadeniz', x:705, y:150, item:'Kemençe Geleneği', category:'Gösteri Sanatı' },
+  { id:'tunceli', name:'Tunceli', region:'dogu-anadolu', x:700, y:285, item:'Munzur İnanç Mirası', category:'Halk Kültürü' },
+  { id:'sanliurfa', name:'Şanlıurfa', region:'guneydogu', x:735, y:410, item:'Sıra Gecesi', category:'Toplumsal Gelenek' },
+  { id:'usak', name:'Uşak', region:'ege', x:250, y:350, item:'Uşak Halısı', category:'El Sanatı' },
+  { id:'van', name:'Van', region:'dogu-anadolu', x:875, y:300, item:'Van Kilimi', category:'El Sanatı' },
+  { id:'yozgat', name:'Yozgat', region:'ic-anadolu', x:495, y:275, item:'Sürmeli Türküsü', category:'Sözlü Kültür' },
+  { id:'zonguldak', name:'Zonguldak', region:'karadeniz', x:310, y:185, item:'Madenci Kültürü', category:'Toplumsal Gelenek' },
+  { id:'aksaray', name:'Aksaray', region:'ic-anadolu', x:470, y:345, item:'Ihlara Vadisi Mirası', category:'Tarihi Miras' },
+  { id:'bayburt', name:'Bayburt', region:'karadeniz', x:700, y:215, item:'Dede Korkut Anlatıları', category:'Sözlü Kültür' },
+  { id:'karaman', name:'Karaman', region:'ic-anadolu', x:455, y:420, item:'Türkçe Dil Mirası', category:'Sözlü Kültür' },
+  { id:'kirikkale', name:'Kırıkkale', region:'ic-anadolu', x:405, y:285, item:'Keskin Türküleri', category:'Sözlü Kültür' },
+  { id:'batman', name:'Batman', region:'guneydogu', x:810, y:370, item:'Hasankeyf Mirası', category:'Tarihi Miras' },
+  { id:'sirnak', name:'Şırnak', region:'guneydogu', x:880, y:390, item:'Şırnak Kilimleri', category:'El Sanatı' },
+  { id:'bartin', name:'Bartın', region:'karadeniz', x:350, y:165, item:'Amasra Tel Kırma', category:'El Sanatı' },
+  { id:'ardahan', name:'Ardahan', region:'dogu-anadolu', x:835, y:145, item:'Damlıca Bal Geleneği', category:'Toplumsal Gelenek' },
+  { id:'igdir', name:'Iğdır', region:'dogu-anadolu', x:905, y:185, item:'Koçbaşı Mezar Taşları', category:'Tarihi Miras' },
+  { id:'yalova', name:'Yalova', region:'marmara', x:190, y:245, item:'Termal Kaplıca Mirası', category:'Tarihi Miras' },
+  { id:'karabuk', name:'Karabük', region:'karadeniz', x:350, y:205, item:'Safranbolu Evleri', category:'Tarihi Miras' },
+  { id:'kilis', name:'Kilis', region:'guneydogu', x:635, y:445, item:'Kilis Yorgan İşlemeciliği', category:'El Sanatı' },
+  { id:'osmaniye', name:'Osmaniye', region:'akdeniz', x:595, y:425, item:'Karatepe Kilim Motifleri', category:'El Sanatı' },
+  { id:'duzce', name:'Düzce', region:'karadeniz', x:285, y:210, item:'Çerkes Kültürü', category:'Toplumsal Gelenek' },
+];
+
+const CATEGORY_DETAILS = {
+  'El Sanatı': { icon:'🧵', task:'Motif ve tekniği doğru eşleştirme', practice:'ustanın kullandığı malzeme, motif ve tekniği dikkatle öğrenmek', risk:'usta-çırak aktarımı azalırsa el emeği bilgisinin kaybolması' },
+  'Geleneksel Yemek': { icon:'🍲', task:'Malzemeleri doğru sıraya koyma', practice:'tarifi aile büyüklerinden öğrenip yerel sunum adabıyla paylaşmak', risk:'hazır tüketim alışkanlığı artarsa geleneksel tarif bilgisinin zayıflaması' },
+  'Gösteri Sanatı': { icon:'🎭', task:'Ritim ve hareket sırasını yakalama', practice:'ritim, duruş ve sahne adabını yöresine uygun biçimde uygulamak', risk:'figürler ve icra biçimi doğru aktarılmazsa yerel tavrın bozulması' },
+  'Sözlü Kültür': { icon:'📜', task:'Hikayeyi doğru sırayla tamamlama', practice:'anlatıyı dinleyip ana karakterleri, olayları ve mesajı doğru aktarmak', risk:'sözlü kayıtlar tutulmazsa bellekteki hikayelerin unutulması' },
+  'Sözlü Gelenek': { icon:'🪕', task:'Eksik dizeyi veya sözü tamamlama', practice:'sözlü mirası ezgi, ritim ve bağlamıyla birlikte öğrenmek', risk:'genç kuşaklar öğrenmezse aktarım zincirinin zayıflaması' },
+  'Sözlü Anlatım': { icon:'🗣️', task:'Hikayeyi doğru sırayla oluşturma', practice:'ses, jest ve anlatım sırasını koruyarak dinleyiciye aktarmak', risk:'canlı anlatım ortamları azalırsa anlatıcılık dilinin unutulması' },
+  'Ritüel': { icon:'🌱', task:'Sembolleri ve tören adımlarını toplama', practice:'törenin anlamını, sessizlik ve saygı kurallarını bilerek katılmak', risk:'yalnız gösteri gibi görülürse manevi ve toplumsal anlamın zayıflaması' },
+  'Festival': { icon:'🎪', task:'Festival sırasını doğru kurma', practice:'festivalin tören dilini, müziğini ve toplu katılım adabını korumak', risk:'festival yalnız eğlenceye dönüşürse kültürel bağlamın unutulması' },
+  'Toplumsal Gelenek': { icon:'🤝', task:'Dayanışma adımlarını doğru seçme', practice:'sohbet, imece, paylaşım ve topluluk kurallarını yaşatmak', risk:'toplulukla yapılmadığında dayanışma anlamının azalması' },
+  'Toplumsal Uygulama': { icon:'☕', task:'Hazırlık ve sunum sırasını kurma', practice:'hazırlama, sunma ve sohbet adabını birlikte uygulamak', risk:'sadece tüketim ürünü gibi görülürse kültürel nezaketin unutulması' },
+  'Toplumsal Yaşam': { icon:'⛺', task:'Günlük yaşam görevini tamamlama', practice:'yaşam biçiminin araçlarını, iş bölümünü ve dayanışmasını öğrenmek', risk:'yaşam biçimi değiştikçe pratik bilginin kaybolması' },
+  'Halk Kültürü': { icon:'🧿', task:'İnanç ve sembolü doğru yorumlama', practice:'sembolün anlamını büyüklerden öğrenip saygıyla aktarmak', risk:'sembol yalnız süs eşyası sanılırsa halk inancı boyutunun unutulması' },
+  'Halk İnancı': { icon:'🧿', task:'Koruyucu sembolü doğru seçme', practice:'inancın anlamını doğru bağlamda açıklayıp saygılı olmak', risk:'anlamı bilinmeden kullanılırsa kültürel bağlamın kaybolması' },
+  'Yerel Kültür': { icon:'🥤', task:'Yerel malzemeleri doğru toplama', practice:'yerel üretim bilgisini, tat dengesini ve sunum biçimini öğrenmek', risk:'endüstriyel tatlar geleneksel bilgiyi geri plana itebilir' },
+  'Tarihi Miras': { icon:'🏛️', task:'Miras alanı ipuçlarını eşleştirme', practice:'alanı gezerken yapı, anlatı ve koruma kurallarını birlikte öğrenmek', risk:'koruma bilinci olmazsa tarihi çevrenin anlamının zayıflaması' },
+};
+
+const WRONG_ITEM_POOL = PROVINCE_SOURCE.map(p => p.item);
+const CITY_SOURCE = PROVINCE_SOURCE.map((city, idx) => {
+  const detail = CATEGORY_DETAILS[city.category] || CATEGORY_DETAILS['Halk Kültürü'];
+  const wrong = WRONG_ITEM_POOL.filter(item => item !== city.item).slice(idx + 1).concat(WRONG_ITEM_POOL).filter((item, i, arr) => item !== city.item && arr.indexOf(item) === i).slice(0, 3);
+  return {
+    ...city,
+    icon: detail.icon,
+    task: detail.task,
+    fact: `${city.item}, ${city.name} ilinin kültürel hafızasında önemli yer tutan ${city.category.toLocaleLowerCase('tr-TR')} örneğidir.`,
+    practice: detail.practice,
+    risk: detail.risk,
+    heritageHint: `${city.name} için "${city.item}" mirasının hangi kategoriye ait olduğunu, nasıl yaşatıldığını ve neden korunması gerektiğini birlikte düşün.`,
+    interviewTask: `Bir aile büyüğünle ${city.item} hakkında kısa röportaj yap: "Bu miras eskiden ne işe yarardı, nasıl yapılırdı veya yaşatılırdı, bugün neden korunmalı?" diye sor.`,
+    wrong,
+  };
+});
+
+function cityQuestions(city){
+  return [
+    {
+      text: `${city.name} şehrinde keşfedeceğin kültürel miras hangisidir?`,
+      category: 'unesco', type: 'single',
+      options: [city.item, ...city.wrong],
+      correct: 0,
+      wikiTitle: city.item,
+      imageCaption: `${city.name} — ${city.item}`,
+      explanation: `${city.name} bölümünün ana mirası ${city.item}. ${city.fact}`
+    },
+    {
+      text: `${city.item} mirasının doğru özellikleri hangileridir?`,
+      category: city.category.includes('Yemek') || city.category.includes('Yerel') || city.category.includes('Toplumsal Uygulama') ? 'cuisine' : 'craft',
+      type: 'multi',
+      options: [
+        city.fact,
+        `Bu mirasta amaç ${city.task.toLocaleLowerCase('tr-TR')} becerisini tanımaktır.`,
+        `Bu miras ${city.name} yerine yalnızca başka bir ülkeye aittir.`,
+        'Bu mirasın kültürel aktarım ve öğrenme yönü yoktur.'
+      ],
+      correct: [0, 1],
+      wikiTitle: city.item,
+      imageCaption: `${city.item} — kültürel miras özellikleri`,
+      explanation: `${city.item}, ${city.name} ile ilişkilendirilen bir kültürel mirastır; bilgi, uygulama ve aktarım birlikte öğrenilir.`
+    },
+    {
+      text: `${city.name} görevinde hangi eşleştirmeler doğrudur?`,
+      category: 'craft', type: 'drag',
+      options: [
+        `Şehir | ${city.name}`,
+        `Miras | ${city.item}`,
+        `Kategori | ${city.category}`,
+        `Görev | ${city.task}`
+      ],
+      correct: null,
+      wikiTitle: city.item,
+      imageCaption: `${city.name} kültür pasaportu görevi`,
+      explanation: `Kültür pasaportuna ${city.name} damgası eklemek için ${city.item} mirasını ve "${city.task}" görevini doğru eşleştirmelisin.`
+    },
+    {
+      text: `${city.name}'da ${city.item} mirasını yaşatmak istiyorsun. En doğru davranış hangisi?`,
+      category: 'music', type: 'scenario',
+      options: [
+        'Sadece hızlıca fotoğraf çekip ayrılmak',
+        `${city.practice}; çünkü ${city.risk}.`,
+        'Mirası şehirle ilişkilendirmeden ezberlemek',
+        'Yanlış bilgiyi düzeltmeden arkadaşlara aktarmak'
+      ],
+      correct: 1,
+      wikiTitle: city.item,
+      imageCaption: `${city.item} — yaşayan mirası koruma`,
+      explanation: `Kültürel miras yalnızca bilgi değildir; ${city.practice} gibi uygulamalarla yaşar. ${city.risk.charAt(0).toLocaleUpperCase('tr-TR') + city.risk.slice(1)}.`
+    },
+    {
+      text: `${city.name} ilindeki ${city.item} için bir aile büyüğüyle röportaj yapacaksın. En iyi soru hangisi olur?`,
+      category: 'music', type: 'scenario',
+      options: [
+        `${city.item} eskiden ne işe yarardı, nasıl yaşatılırdı ve bugün neden korunmalı?`,
+        'Bu ilin haritadaki rengi hangi renkti?',
+        'Bu mirası bilmeden hızlıca geçebilir miyim?',
+        'Bu kültürel miras yerine başka şehirdeki rastgele bir geleneği anlatır mısın?'
+      ],
+      correct: 0,
+      wikiTitle: city.item,
+      imageCaption: `${city.name} — aile büyüğü röportaj görevi`,
+      explanation: city.interviewTask
+    },
+  ];
+}
+
+REGIONS.length = 0;
+CITY_SOURCE.forEach((city, idx) => {
+  const regionInfo = MAP_REGION_INFO[city.region];
+  REGIONS.push({
+    id: city.id,
+    number: idx + 1,
+    name: city.name,
+    regionId: city.region,
+    regionName: regionInfo.name,
+    mapX: city.x,
+    mapY: city.y,
+    icon: city.icon,
+    color: regionInfo.color,
+    badge: `${city.item} Koruyucusu`,
+    infoCards: [
+      { label: 'Şehir', value: city.name },
+      { label: 'Bölge', value: regionInfo.name.replace(' Bölgesi', '') },
+      { label: 'Miras', value: city.item },
+      { label: 'Görev', value: city.task },
+      { label: 'Röportaj', value: city.interviewTask },
+      { label: 'Miras İpucu', value: city.heritageHint },
+    ],
+    story: `Bilge Dede haritada ${city.name} noktasını gösteriyor: "Bu şehirde ${city.item} mirasının izi kaybolmadan onu keşfetmeliyiz. Gölge Hırsızı bu kültür parçasını unutturmak istiyor; sen doğru bilgileri topla, bir aile büyüğünden hatıra ve kullanım bilgisini öğren, kültür pasaportuna ${city.name} damgasını ekle."`,
+    mission: `${city.item} hakkında şehir özelindeki soruları çöz, ${city.task} görevini tamamla, aile büyüğü röportajı için doğru soruyu seç ve "${city.item} Koruyucusu" rozetini kazan.`,
+    funFact: city.fact,
+    questions: cityQuestions(city),
+  });
+});
+
 // ── KARAKTER TİPLERİ ─────────────────────────────────────────
 const CHARACTERS = {
-  seyyah:   { label: 'Zanaat Ustası',       icon: '🪡', intro: 'Zanaat Ustası olarak bu bölgede kaybolmakta olan el sanatlarının izini sürüyorsun.' },
-  arkeolog: { label: 'Halk Ozanı',          icon: '🪕', intro: 'Halk Ozanı olarak nesli tükenmekte olan türküleri ve sözlü geleneği derliyorsun.' },
+  seyyah:   { label: 'Zanaat Ustası',       icon: '🪡', intro: 'Zanaat Ustası olarak şehirlerde kaybolmakta olan el sanatlarının izini sürüyorsun.' },
+  arkeolog: { label: 'Halk Ozanı',          icon: '🪕', intro: 'Halk Ozanı olarak şehirlerin sözlü kültürünü, türkülerini ve anlatılarını derliyorsun.' },
   kasif:    { label: 'Miras Avcısı',        icon: '🗺️', intro: 'Miras Avcısı olarak gizli kalmış kültürel hazineleri ve unutulmuş ritüelleri keşfediyorsun.' },
-  tarihci:  { label: 'Gelenek Koruyucusu', icon: '🛡️', intro: 'Gelenek Koruyucusu olarak yok olmakta olan yaşam biçimlerini gelecek kuşaklara taşıyorsun.' },
+  tarihci:  { label: 'Gelenek Koruyucusu', icon: '🛡️', intro: 'Gelenek Koruyucusu olarak şehirlerin yaşayan kültürünü gelecek kuşaklara taşıyorsun.' },
 };
 
 // ── KÜLTÜREL MİRAS KARTLARI ───────────────────────────────────
@@ -688,6 +962,18 @@ const HERITAGE_CARDS = [
 ];
 const RARITY_COLORS = { common:'#aaa', rare:'#4facfe', epic:'#a855f7', legendary:'#f9c74f' };
 const RARITY_LABELS = { common:'Yaygın', rare:'Nadir', epic:'Epik', legendary:'Efsanevi' };
+
+HERITAGE_CARDS.length = 0;
+REGIONS.forEach((city, idx) => {
+  HERITAGE_CARDS.push({
+    id: `${city.id}-miras`,
+    emoji: city.icon,
+    name: city.badge.replace(' Koruyucusu', ''),
+    region: city.id,
+    rarity: idx % 5 === 0 ? 'legendary' : idx % 3 === 0 ? 'epic' : idx % 2 === 0 ? 'rare' : 'common',
+    color: city.color,
+  });
+});
 
 // ── DİJİTAL VATANDAŞLIK SENARYOLARI ─────────────────────────
 const DV_SCENARIOS = [
@@ -829,6 +1115,7 @@ const State = {
     this.completedRegions={};this.sessionScore=0;
     this.totalAnswered=0;this.totalCorrect=0;this.responseTimes=[];
     this.progress={};this.character='kasif';this.unlockedCards=[];
+    this.currentRegion=null;this.currentQIdx=0;this.quizScore=0;this.quizCorrect=0;
     localStorage.removeItem('tkf2');
     localStorage.removeItem('tkf3');
   },
@@ -881,6 +1168,15 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const s=$('screen-'+id);
   if(s)s.classList.add('active');
+  if(id === 'map') refreshMapView();
+}
+
+function requirePlayerName(){
+  if(State.playerName && State.playerName.trim()) return true;
+  State.currentRegion = null;
+  showScreen('name');
+  setTimeout(()=>$('player-name-input')?.focus(), 150);
+  return false;
 }
 
 function starsFor(score, maxScore){
@@ -928,52 +1224,307 @@ function createParticles(){
 }
 
 // ── HARİTA ──────────────────────────────────────────────────
+let leafletMap = null;
+let leafletMarkers = {};
+let provinceBoundaryLayer = null;
+let leafletTileErrors = 0;
+const PROVINCE_BOUNDARIES_URL = 'https://raw.githubusercontent.com/uyasarkocal/borders-of-turkey/master/lvl1-TR.geojson';
+
+function cityLatLng(city){
+  if(city.lat && city.lng) return [city.lat, city.lng];
+  const lng = 25.5 + (city.mapX / 1000) * 20.5;
+  const lat = 42.4 - ((city.mapY - 120) / 360) * 6.8;
+  return [lat, lng];
+}
+
 function initMap(){
   const hoverCard=$('region-hover-card');
   const rcIcon=$('rc-icon'),rcName=$('rc-name'),rcStatus=$('rc-status');
+  const mapContainer = document.querySelector('.map-container');
+
+  if(window.L && $('leaflet-map')){
+    mapContainer?.classList.remove('no-leaflet');
+    initLeafletMap(hoverCard, rcIcon, rcName, rcStatus);
+    return;
+  }
+
+  mapContainer?.classList.add('no-leaflet');
 
   document.querySelectorAll('.region-polygon').forEach(el=>{
     const rid=el.dataset.region;
-    const region=REGIONS.find(r=>r.id===rid);
+    const region=MAP_REGION_INFO[rid];
     if(!region)return;
 
-    if(State.completedRegions[rid]) el.classList.add('completed');
-
     el.addEventListener('mouseenter',()=>{
-      const done=State.completedRegions[rid];
       rcIcon.textContent=region.icon;
-      rcName.textContent=`${region.number}. ${region.name}`;
-      rcStatus.textContent=done?` — ${region.badge} ✓ (${done.score} puan)`:' — Keşfedilmedi';
-      rcStatus.style.color=done?'var(--accent)':'var(--text-dim)';
+      rcName.textContent=region.name;
+      const total = REGIONS.filter(c => c.regionId === rid).length;
+      const done = REGIONS.filter(c => c.regionId === rid && State.completedRegions[c.id]).length;
+      rcStatus.textContent=` — ${done}/${total} il tamamlandı`;
+      rcStatus.style.color=done===total?'var(--accent)':'var(--text-dim)';
       hoverCard.style.display='flex';
     });
     el.addEventListener('mouseleave',()=>{ hoverCard.style.display='none'; });
-    el.addEventListener('click',()=>{ SFX.click(); enterRegion(rid); });
   });
 
-  // Etiket tıklaması
-  document.querySelectorAll('.region-label').forEach(t=>{
-    t.style.cursor='pointer';
-    t.addEventListener('click',()=>{ SFX.click(); enterRegion(t.dataset.region); });
+  renderSvgCityMarkers();
+}
+
+function refreshMapView(){
+  if(leafletMap){
+    setTimeout(() => leafletMap.invalidateSize(), 60);
+    setTimeout(() => leafletMap.invalidateSize(), 300);
+  }
+}
+
+function useLegacyMapFallback(){
+  const mapContainer = document.querySelector('.map-container');
+  if(mapContainer?.classList.contains('no-leaflet')) return;
+  mapContainer?.classList.add('no-leaflet');
+  renderSvgCityMarkers();
+}
+
+function initLeafletMap(hoverCard, rcIcon, rcName, rcStatus){
+  if(leafletMap) return;
+  leafletMap = L.map('leaflet-map', {
+    zoomControl: true,
+    scrollWheelZoom: true,
+    minZoom: 5,
+    maxZoom: 10,
+  }).setView([39.05, 35.15], 6);
+
+  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors',
+  });
+  tiles.on('tileerror', () => {
+    leafletTileErrors++;
+    if(leafletTileErrors > 8) useLegacyMapFallback();
+  });
+  tiles.addTo(leafletMap);
+
+  const bounds = [];
+  loadProvinceBoundaries(hoverCard, rcIcon, rcName, rcStatus);
+  REGIONS.forEach(city => {
+    const latLng = cityLatLng(city);
+    bounds.push(latLng);
+    const marker = L.marker(latLng, {
+      title: city.name,
+      icon: provinceIcon(city),
+      keyboard: true,
+    }).addTo(leafletMap);
+
+    marker.bindTooltip(`${city.name} · ${city.badge}`, {
+      className: 'province-tooltip',
+      direction: 'top',
+      offset: [0, -18],
+    });
+
+    marker.on('mouseover', () => {
+      const done=State.completedRegions[city.id];
+      rcIcon.textContent=city.icon;
+      rcName.textContent=`${city.number}. ${city.name}`;
+      rcStatus.textContent=done?` — ${city.badge} ✓ (${done.score} puan)`:` — ${city.badge}`;
+      rcStatus.style.color=done?'var(--accent)':'var(--text-dim)';
+      hoverCard.style.display='flex';
+    });
+    marker.on('mouseout', () => { hoverCard.style.display='none'; });
+    marker.on('click', () => { SFX.click(); enterRegion(city.id); });
+    leafletMarkers[city.id] = marker;
+  });
+
+  leafletMap.fitBounds(bounds, { padding: [24, 24] });
+  refreshMapView();
+}
+
+async function loadProvinceBoundaries(hoverCard, rcIcon, rcName, rcStatus){
+  try{
+    const response = await fetch(PROVINCE_BOUNDARIES_URL);
+    if(!response.ok) throw new Error(`GeoJSON ${response.status}`);
+    const geojson = await response.json();
+    provinceBoundaryLayer = L.geoJSON(geojson, {
+      style: feature => provinceStyle(provinceFromFeature(feature), false),
+      onEachFeature: (feature, layer) => bindProvinceBoundary(feature, layer, hoverCard, rcIcon, rcName, rcStatus),
+    }).addTo(leafletMap);
+    provinceBoundaryLayer.bringToBack();
+  } catch(err){
+    console.warn('İl sınırları yüklenemedi, pinli harita kullanılacak:', err);
+  }
+}
+
+function provinceFromFeature(feature){
+  const props = feature?.properties || {};
+  const raw = props.name || props.NAME || props.Name || props.il || props.IL || props.Il ||
+    props.province || props.Province || props.shapeName || props.shapeName_tr || props.NAME_1 || props.admin1Name;
+  const normalized = normalizeProvinceName(raw || '');
+  return REGIONS.find(city => normalizeProvinceName(city.name) === normalized) || null;
+}
+
+function normalizeProvinceName(name){
+  return String(name || '')
+    .replace(/^Province of\s+/i, '')
+    .replace(/\s+Province$/i, '')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c')
+    .replace(/â/g,'a').replace(/î/g,'i').replace(/û/g,'u')
+    .replace(/[^a-z0-9]/g,'');
+}
+
+function provinceStyle(city, active){
+  const color = city?.color || '#4facfe';
+  return {
+    color: active ? '#ffffff' : color,
+    weight: active ? 3 : 1.4,
+    fillColor: color,
+    fillOpacity: city && State.completedRegions[city.id] ? 0.34 : 0.16,
+    opacity: 0.95,
+  };
+}
+
+function bindProvinceBoundary(feature, layer, hoverCard, rcIcon, rcName, rcStatus){
+  const city = provinceFromFeature(feature);
+  if(!city) return;
+
+  layer.bindTooltip(`${city.name} · ${city.badge}`, {
+    className: 'province-tooltip',
+    direction: 'center',
+    sticky: true,
+  });
+
+  layer.on({
+    mouseover: () => {
+      layer.setStyle(provinceStyle(city, true));
+      const done=State.completedRegions[city.id];
+      rcIcon.textContent=city.icon;
+      rcName.textContent=`${city.number}. ${city.name}`;
+      rcStatus.textContent=done?` — ${city.badge} ✓ (${done.score} puan)`:` — ${city.badge}`;
+      rcStatus.style.color=done?'var(--accent)':'var(--text-dim)';
+      hoverCard.style.display='flex';
+    },
+    mouseout: () => {
+      layer.setStyle(provinceStyle(city, false));
+      hoverCard.style.display='none';
+    },
+    click: () => {
+      SFX.click();
+      enterRegion(city.id);
+    },
+  });
+}
+
+function provinceIcon(city){
+  const done = !!State.completedRegions[city.id];
+  return L.divIcon({
+    className: `province-marker${done ? ' completed' : ''}`,
+    html: `<div class="province-marker-pin" style="background:${city.color}"><span>${city.icon}</span></div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 24],
+    tooltipAnchor: [0, -24],
+  });
+}
+
+function updateLeafletMarkers(){
+  if(!leafletMap) return;
+  REGIONS.forEach(city => {
+    const marker = leafletMarkers[city.id];
+    if(marker) marker.setIcon(provinceIcon(city));
+  });
+  if(provinceBoundaryLayer){
+    provinceBoundaryLayer.eachLayer(layer => {
+      const city = provinceFromFeature(layer.feature);
+      if(city) layer.setStyle(provinceStyle(city, false));
+    });
+  }
+}
+
+function renderSvgCityMarkers(){
+  const svg = $('turkey-map');
+  if(!svg) return;
+  let layer = $('city-markers-layer');
+  if(!layer){
+    layer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    layer.setAttribute('id', 'city-markers-layer');
+    svg.appendChild(layer);
+  }
+  while(layer.firstChild) layer.removeChild(layer.firstChild);
+
+  REGIONS.forEach(city => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.classList.add('city-marker');
+    if(State.completedRegions[city.id]) g.classList.add('completed');
+    g.dataset.city = city.id;
+    g.setAttribute('transform', `translate(${city.mapX}, ${city.mapY})`);
+    g.setAttribute('role', 'button');
+    g.setAttribute('tabindex', '0');
+
+    const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    halo.setAttribute('r', '10');
+    halo.setAttribute('class', 'city-marker-halo');
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('r', '6');
+    dot.setAttribute('class', 'city-marker-dot');
+    dot.setAttribute('fill', city.color);
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('class', 'city-marker-label');
+    label.setAttribute('x', '0');
+    label.setAttribute('y', '-19');
+    label.setAttribute('text-anchor', 'middle');
+    label.textContent = city.name;
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    icon.setAttribute('class', 'city-marker-icon');
+    icon.setAttribute('x', '0');
+    icon.setAttribute('y', '5');
+    icon.setAttribute('text-anchor', 'middle');
+    icon.textContent = city.icon;
+
+    g.appendChild(halo);
+    g.appendChild(dot);
+    g.appendChild(icon);
+    g.appendChild(label);
+    g.addEventListener('mouseenter',()=>{
+      const done=State.completedRegions[city.id];
+      rcIcon.textContent=city.icon;
+      rcName.textContent=`${city.number}. ${city.name}`;
+      rcStatus.textContent=done?` — ${city.badge} ✓ (${done.score} puan)`:` — ${city.badge}`;
+      rcStatus.style.color=done?'var(--accent)':'var(--text-dim)';
+      hoverCard.style.display='flex';
+    });
+    g.addEventListener('mouseleave',()=>{ hoverCard.style.display='none'; });
+    g.addEventListener('click',()=>{ SFX.click(); enterRegion(city.id); });
+    g.addEventListener('keydown',e=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); SFX.click(); enterRegion(city.id); }});
+    layer.appendChild(g);
   });
 }
 
 function updateMapUI(){
   $('header-player-name').textContent=`🗺️ ${State.playerName}`;
   const done=Object.keys(State.completedRegions).length;
-  $('progress-text').textContent=`${done}/7 Bölge Tamamlandı`;
+  $('progress-text').textContent=`${done}/${REGIONS.length} İl Tamamlandı`;
   $('total-score').textContent=State.sessionScore.toLocaleString('tr-TR');
 
   document.querySelectorAll('.region-polygon').forEach(el=>{
-    el.classList.toggle('completed',!!State.completedRegions[el.dataset.region]);
+    const rid = el.dataset.region;
+    const regionCities = REGIONS.filter(c => c.regionId === rid);
+    el.classList.toggle('completed', regionCities.length > 0 && regionCities.every(c => State.completedRegions[c.id]));
   });
+  document.querySelectorAll('.city-marker').forEach(el=>{
+    el.classList.toggle('completed', !!State.completedRegions[el.dataset.city]);
+  });
+  updateLeafletMarkers();
 
-  // Rozetler — kazanılanlar SVG, kazanılmamışlar gri/kilitli ön gösterim
-  const strip=$('badges-strip');
+  renderProgressBadges();
+
+  if(Object.keys(State.completedRegions).length===REGIONS.length)
+    setTimeout(showFinalScreen,800);
+}
+
+function renderProgressBadges(){
+  const strip=$('progress-badges-strip');
+  if(!strip) return;
   clearEl(strip);
   REGIONS.forEach(r=>{
     const earned = !!State.completedRegions[r.id];
-    const wrap = el('div', {className: 'strip-badge'+(earned?' earned':' locked'), title:`${r.number}. ${r.badge}`});
+    const wrap = el('div', {className: 'strip-badge'+(earned?' earned':' locked'), title:`${r.number}. ${r.name} - ${r.badge}`});
     wrap.dataset.label = `${r.number}. ${r.badge}`;
     const inner = el('div', {className:'strip-badge-inner'});
     if(typeof REGION_BADGES !== 'undefined' && REGION_BADGES[r.id]){
@@ -995,15 +1546,13 @@ function updateMapUI(){
     wrap.appendChild(label);
     strip.appendChild(wrap);
   });
-
-  if(Object.keys(State.completedRegions).length===REGIONS.length)
-    setTimeout(showFinalScreen,800);
 }
 
 // ── DETAYLI İLERLEME MATRİSİ ─────────────────────────────────
 function openProgressMatrix(){
   const modal = $('progress-modal');
   if(!modal) return;
+  renderProgressBadges();
   const body = $('progress-modal-body');
   clearEl(body);
 
@@ -1100,6 +1649,7 @@ function injectBadgeSvg(containerId, regionId, fallbackEmoji){
 
 // ── BÖLGE GİRİŞ ─────────────────────────────────────────────
 function enterRegion(rid){
+  if(!requirePlayerName()) return;
   const region=REGIONS.find(r=>r.id===rid);
   if(!region)return;
   State.currentRegion=region;
@@ -1112,28 +1662,28 @@ function enterRegion(rid){
   const CHAR_STORIES = {
     seyyah: {
       prefix: '🪡 Zanaat Ustası olarak',
-      angle: 'bu bölgedeki kaybolmakta olan el sanatlarının ve zanaat geleneğinin izini sürüyorsun.',
-      mission: 'Görevin: Bu bölgenin unutulmaya yüz tutmuş el sanatlarını, zanaat ustalarını ve geleneksel üretim tekniklerini keşfet ve belgele.',
+      angle: 'bu şehirdeki kaybolmakta olan el sanatlarının ve zanaat geleneğinin izini sürüyorsun.',
+      mission: 'Görevin: Bu şehrin unutulmaya yüz tutmuş el sanatlarını, zanaat ustalarını ve geleneksel üretim tekniklerini keşfet ve belgele.',
     },
     arkeolog: {
       prefix: '🪕 Halk Ozanı olarak',
-      angle: 'bu bölgedeki nesli tükenmekte olan türküleri, masalları ve sözlü geleneği derliyorsun.',
-      mission: 'Görevin: Bu bölgenin yok olmakta olan müzik kültürünü, halk türkülerini ve sözlü miras öğelerini topla ve yaşat.',
+      angle: 'bu şehirdeki nesli tükenmekte olan türküleri, masalları ve sözlü geleneği derliyorsun.',
+      mission: 'Görevin: Bu şehrin yok olmakta olan müzik kültürünü, halk türkülerini ve sözlü miras öğelerini topla ve yaşat.',
     },
     kasif: {
       prefix: '🗺️ Miras Avcısı olarak',
-      angle: 'bu bölgedeki gizli kalmış kültürel hazineleri ve unutulmuş ritüelleri keşfe çıkıyorsun.',
-      mission: 'Görevin: Bu bölgede bilim ve teknolojinin ışığında unutulmuş kültürel mirası, antik yapıları ve kaybolmak üzere olan gelenekleri ortaya çıkar.',
+      angle: 'bu şehirdeki gizli kalmış kültürel hazineleri ve unutulmuş ritüelleri keşfe çıkıyorsun.',
+      mission: 'Görevin: Bilge Dede\'nin ipuçlarıyla bu şehirdeki kültürel mirası ve kaybolmak üzere olan geleneği ortaya çıkar.',
     },
     tarihci: {
       prefix: '🛡️ Gelenek Koruyucusu olarak',
-      angle: 'bu bölgedeki yok olmakta olan gelenekleri, ritüelleri ve yaşam biçimlerini gelecek kuşaklara taşıyorsun.',
-      mission: 'Görevin: Bu bölgenin UNESCO listesindeki ve tescilli kültürel miras öğelerini, unutulmaya yüz tutan gelenek ve göreneklerini koru ve aktar.',
+      angle: 'bu şehirdeki yok olmakta olan gelenekleri, ritüelleri ve yaşam biçimlerini gelecek kuşaklara taşıyorsun.',
+      mission: 'Görevin: Bu şehrin kültürel miras öğesini, unutulmaya yüz tutan gelenek ve görenekleriyle birlikte koru ve aktar.',
     },
   };
   const cs = CHAR_STORIES[State.character] || null;
   if(cs){
-    $('ri-story-text').textContent = cs.prefix + ' ' + region.name + '\u2019na geldin. ' + cs.angle + ' ' + region.story;
+    $('ri-story-text').textContent = cs.prefix + ' ' + region.name + ' şehrine geldin. ' + cs.angle + ' ' + region.story;
     $('ri-mission').textContent = cs.mission;
   } else {
     $('ri-story-text').textContent = region.story;
@@ -1160,7 +1710,7 @@ function enterRegion(rid){
   } else {
     if(startBtn) startBtn.style.display='';
     if(banner) banner.style.display='none';
-    if(tagline) tagline.textContent = 'Bu bölgeyi tamamlarsan kazanacağın unvan:';
+    if(tagline) tagline.textContent = 'Bu şehri tamamlarsan kazanacağın unvan:';
     if(missionCard) missionCard.style.display='';
   }
 
@@ -1210,11 +1760,11 @@ function shuffle(arr){
 
 function startQuiz(){
   const r=State.currentRegion;
-  // Her testte tam 10 soru: 9 rastgele (drag hariç) + 1 drag (eşleştirme) en sonda
+  // Şehirdeki tüm kültürel miras soruları oynanır; varsa eşleştirme sorusu sona alınır.
   const QUIZ_SIZE = 10;
 
   // Karaktere göre kategori önceliği
-  const CHAR_CATEGORY = { seyyah:'craft', arkeolog:'music', kasif:'ai', tarihci:'unesco' };
+  const CHAR_CATEGORY = { seyyah:'craft', arkeolog:'music', kasif:'unesco', tarihci:'unesco' };
   const preferredCat = CHAR_CATEGORY[State.character] || null;
 
   const allShuffled = shuffle(r.questions);
@@ -1300,41 +1850,41 @@ function renderQuestion(){
     num.appendChild(chip);
   }
 
+  updateQuizHost(q, qi);
   $('q-text').textContent=q.text;
+  setupQuestionHint(q);
 
-  // Görsel — loading state ile
+  // Görsel — Wikipedia varsa onu, yoksa her soru için yerel kültürel miras kartını göster
   const wrap=$('q-image-wrap'),img=$('q-image'),cap=$('q-image-caption'),loader=$('q-image-loader');
+  const fallbackSrc = fallbackQuestionImage(q);
+  wrap.style.display='flex';
+  img.style.display='none';
+  cap.textContent = q.imageCaption || `${State.currentRegion?.name || 'Türkiye'} — Kültürel Miras`;
+  if(loader){
+    loader.innerHTML = '';
+    loader.appendChild(el('div',{className:'q-image-spinner'}));
+    loader.appendChild(el('span',{text:'Görsel hazırlanıyor…'}));
+    loader.style.display='flex';
+  }
+  img.removeAttribute('src');
+  const showImage = (src) => {
+    img.onload = ()=>{
+      if(loader) loader.style.display='none';
+      img.style.display='block';
+    };
+    img.onerror = ()=>{
+      if(src !== fallbackSrc) showImage(fallbackSrc);
+      else if(loader) loader.style.display='none';
+    };
+    img.src = src || fallbackSrc;
+  };
   if(q.wikiTitle){
-    // Görseli hemen göster (loading durumunda)
-    wrap.style.display='flex';
-    img.style.display='none';
-    cap.textContent = q.imageCaption || '';
-    if(loader) loader.style.display='flex';
-    img.removeAttribute('src');
     fetchWikiThumb(q.wikiTitle).then(src=>{
-      // Soru değişmiş olabilir — sadece hâlâ aynı sorudaysak göster
       if(State.currentQIdx !== qi) return;
-      if(!src){
-        if(loader){
-          loader.innerHTML='';
-          loader.appendChild(el('span',{text:'🖼️ Görsel bulunamadı'}));
-        }
-        return;
-      }
-      img.onload = ()=>{
-        if(loader) loader.style.display='none';
-        img.style.display='block';
-      };
-      img.onerror = ()=>{
-        if(loader){
-          loader.innerHTML='';
-          loader.appendChild(el('span',{text:'🖼️ Görsel yüklenemedi'}));
-        }
-      };
-      img.src = src;
+      showImage(src || fallbackSrc);
     });
   } else {
-    wrap.style.display='none';
+    showImage(fallbackSrc);
   }
 
   // Dot güncelle
@@ -1376,6 +1926,55 @@ function renderQuestion(){
     }
     if(State.timeLeft<=0){clearInterval(State.timerInterval);submitAnswer(true);}
   },100);
+}
+
+function updateQuizHost(q, qi){
+  const hostName = $('quiz-host-name');
+  const hostLine = $('quiz-host-line');
+  if(!hostName || !hostLine) return;
+  hostName.textContent = 'Bilge Dede';
+  const lines = {
+    single: [
+      'Kültür sandığından tek doğru cevap çıkacak. İyi bak!',
+      'Bu ipucu seni doğru mirasa götürür. Tek seçeneği işaretle!',
+    ],
+    multi: [
+      'Bu kez birden fazla doğru parça var. Hepsini topla!',
+      'Miras dedektifi modu: doğru bilgileri beraber seç!',
+    ],
+    drag: [
+      'Pasaport damgası için eşleştirme zamanı!',
+      'Şehir, miras ve görev parçalarını doğru yerleştir!',
+    ],
+    scenario: [
+      'Kendini o şehirde düşün. Kültürü nasıl yaşatırsın?',
+      'Sahne senin: mirası koruyan davranışı seç!',
+    ],
+  };
+  const pool = lines[q.type] || lines.single;
+  hostLine.textContent = pool[qi % pool.length];
+}
+
+function setupQuestionHint(q){
+  const hintBox = $('question-hint');
+  const hintBtn = $('btn-question-hint');
+  if(!hintBox || !hintBtn) return;
+  hintBox.style.display = 'none';
+  hintBox.textContent = buildQuestionHint(q);
+  hintBtn.disabled = false;
+  hintBtn.onclick = () => {
+    SFX.click();
+    const willShow = hintBox.style.display === 'none';
+    hintBox.style.display = willShow ? 'block' : 'none';
+    hintBtn.classList.toggle('active', willShow);
+  };
+}
+
+function buildQuestionHint(q){
+  if(q.type === 'drag') return 'Eşleştirmede aynı pasaport sayfasındaki parçaları düşün: yer, miras türü, görev ve anlam birbiriyle uyumlu olmalı.';
+  if(q.type === 'multi') return 'Doğru seçenekler kültürel aktarımı anlatır; ezber, karıştırma veya yok sayma içeren seçeneklerden uzak dur.';
+  if(q.type === 'scenario') return 'Kültürel mirası koruyan davranış genelde dinlemek, öğrenmek, uygulamak, paylaşmak veya aile büyüğüne danışmaktır.';
+  return 'Seçenekleri okurken şehirle güçlü kültürel bağ kuran ve yaşayan gelenek mantığına uyan seçeneği ara.';
 }
 
 // ── TEK CEVAP / SENARYO ──────────────────────────────────────
@@ -1664,7 +2263,7 @@ function showFinalScreen(){
   $('cert-name').textContent=State.playerName;
   $('cert-score').textContent=State.sessionScore.toLocaleString('tr-TR');
   $('cert-date').textContent=new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
-  // Sertifikada toplam başarı yüzdesi (7 bölge × 1000 = 7000 max)
+  // Sertifikada toplam başarı yüzdesi (81 il × 1000 puan)
   const TOTAL_MAX = REGIONS.length * 1000;
   const overallPct = Math.round(State.sessionScore / TOTAL_MAX * 100);
   const certPctEl = $('cert-pct'); if(certPctEl) certPctEl.textContent = `%${overallPct}`;
@@ -1687,14 +2286,6 @@ function showFinalScreen(){
   }
 
   showScreen('final');
-}
-
-
-// ── KARAKTER SEÇİMİ ─────────────────────────────────────────
-function selectCharacter(charKey){
-  State.character = charKey;
-  State.save();
-  initMap(); updateMapUI(); showScreen('map');
 }
 
 // ── MİRAS KARTI KİLİT AÇMA ───────────────────────────────────
@@ -1858,115 +2449,18 @@ function nextDV(){
     renderDV();
   }
 }
-
-
-// ── KÜLTÜREL MİRAS AI SOHBET ─────────────────────────────────
-const AI_SYSTEM_PROMPT = `Sen "Kültürel Miras AI" adlı bir yapay zeka asistanısın. Bu oyunun kapsadığı tüm konularda yardımcı olabilirsin.
-
-Cevaplayabileceğin konular (oyunun kapsamı):
-- Türkiye\'deki UNESCO Dünya Mirası alanları ve tarihi yapılar
-- Anadolu uygarlıkları (Hitit, Urartu, Likya, Kommagene vb.)
-- Türkiye\'nin 7 coğrafi bölgesindeki kültürel özellikler
-- Geleneksel Türk el sanatları ve zanaatları
-- Yöresel Türk mutfağı ve yemek kültürü
-- Türk halk müziği, dansları ve folklor
-- Unutulmaya yüz tutmuş gelenekler, yok olma tehlikesindeki zanaatlar ve meslekler
-- Arkeolojik alanlar, müzeler ve somut olmayan kültürel miras
-- Yapay zeka ve teknolojinin kültürel mirası korumadaki rolü
-
-Bunların DIŞINDA kalan konular için (spor, siyaset, matematik, güncel haberler vb.) yalnızca şunu söyle:
-"Bu konu yetkim dışında. Ben yalnızca Türkiye\'nin unutulmaya yüz tutmuş kültürel mirası hakkında bilgi verebilirim. 🏛️"
-
-Türkçe cevap ver. Kısa, bilgilendirici ve samimi ol.`;
-
-let aiMessages = [];
-const _ak = atob('c2stcHJvai1PZjFxUW9KTEZJT3lDZEFGZVVSTEtWeC1XQmZKY255Rl90SlFnT2lFTWJCV2xOcENCMWJ6dTV1OGQ1U3c5bHRLbUplWTZXSG5Ya1QzQmxia0ZKTkszNHVhNlZUZW1nTXhUNEVfTF80THU4bHE5Smg2SUMtM01VbWp1RlU4OVhMOHBhUU8wajFJX01SejVKUFZFeGF3dk13VDNVRUE=');
-
-async function sendAIMessage(){
-  const input = $('ai-input');
-  const text = input.value.trim();
-  if(!text) return;
-
-  input.value = '';
-  appendAIMessage('user', text);
-  aiMessages.push({ role: 'user', content: text });
-
-  const sendBtn = $('ai-send-btn');
-  if(sendBtn){ sendBtn.disabled = true; sendBtn.textContent = '...'; }
-
-  try {
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${_ak}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        max_tokens: 500,
-        messages: [
-          { role: 'system', content: AI_SYSTEM_PROMPT },
-          ...aiMessages.slice(-10),
-        ],
-      }),
-    });
-
-    if(!res.ok){
-      const err = await res.json().catch(()=>({error:{message:'Bilinmeyen hata'}}));
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content || '(Yanıt alınamadı)';
-    aiMessages.push({ role: 'assistant', content: reply });
-    appendAIMessage('assistant', reply);
-  } catch(e){
-    const msg = e.message === 'Load failed' || e.message === 'Failed to fetch'
-      ? '❌ Bağlantı hatası: API anahtarı geçersiz veya iptal edilmiş olabilir. Lütfen yeni bir OpenAI API anahtarı oluşturun.'
-      : `❌ Hata: ${e.message}`;
-    appendAIMessage('system', msg);
-  } finally {
-    if(sendBtn){ sendBtn.disabled = false; sendBtn.textContent = 'Gönder'; }
-    $('ai-input')?.focus();
-  }
-}
-
-function appendAIMessage(role, text){
-  const log = $('ai-log');
-  if(!log) return;
-  const div = document.createElement('div');
-  div.className = 'ai-msg ai-msg-' + role;
-  if(role === 'assistant') {
-    const lbl = document.createElement('div');
-    lbl.className = 'ai-msg-label';
-    lbl.textContent = '🏛️ Kültürel Miras AI';
-    div.appendChild(lbl);
-  }
-  const bubble = document.createElement('div');
-  bubble.className = 'ai-bubble';
-  bubble.textContent = text;
-  div.appendChild(bubble);
-  log.appendChild(div);
-  log.scrollTop = log.scrollHeight;
-}
-
-function openAIChat(){
-  aiMessages = [];
-  const log = $('ai-log');
-  if(log){
-    log.innerHTML = '';
-    appendAIMessage('assistant', "Merhaba! Ben Kültürel Miras AI. Türkiye\'nin UNESCO mirası, tarihi yapıları, geleneksel el sanatları, unutulmaya yüz tutmuş zanaatlar ve yöresel kültürü hakkında sorularına cevap verebilirim. Ne öğrenmek istersin? 🏛️");
-  }
-  showScreen('ai-chat');
-  setTimeout(()=>$('ai-input')?.focus(), 400);
-}
-
 // ── ANA BAŞLATICI ────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   // Kayıtlı ilerlemeyi yükle (varsa)
   State.load();
+  // Her yeni açılışta önce oyuncu adını sor; eski kayıtlı isim doğrudan göreve geçirmesin.
+  State.playerName = '';
+  State.currentRegion = null;
 
   createParticles();
+  initMap();
+  updateMapUI();
+  showScreen('intro');
 
   // İlerleme modal wiring
   $('btn-progress-open')?.addEventListener('click',()=>{ SFX.click(); openProgressMatrix(); });
@@ -1984,7 +2478,14 @@ window.addEventListener('DOMContentLoaded',()=>{
     }
   });
 
-  $('btn-start').addEventListener('click',()=>{ SFX.click(); showScreen('name'); setTimeout(()=>$('player-name-input').focus(),400); });
+  $('btn-start').addEventListener('click',()=>{
+    SFX.click();
+    State.playerName='';
+    $('player-name-input').value='';
+    State.currentRegion=null;
+    showScreen('name');
+    setTimeout(()=>$('player-name-input').focus(),400);
+  });
   $('btn-about').addEventListener('click',()=>{ SFX.click(); showScreen('about'); });
   $('btn-back-intro').addEventListener('click',()=>{ SFX.click(); showScreen('intro'); });
   $('btn-back-from-about').addEventListener('click',()=>{ SFX.click(); showScreen('intro'); });
@@ -1998,7 +2499,10 @@ window.addEventListener('DOMContentLoaded',()=>{
     }
     SFX.click();
     State.reset();State.playerName=name;State.save();
-    showScreen('character');
+    State.character = 'kasif';
+    State.save();
+    updateMapUI();
+    showScreen('map');
   });
   $('btn-start-quiz').addEventListener('click',()=>{ SFX.click(); startQuiz(); });
   $('btn-back-map').addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
@@ -2007,19 +2511,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   $('btn-print-cert').addEventListener('click',()=>{ SFX.click(); window.print(); });
   $('btn-play-again').addEventListener('click',()=>{ SFX.click(); State.reset(); $('player-name-input').value=''; showScreen('intro'); });
   $('btn-install')?.addEventListener('click',()=>PWA.install());
-
-  // Karakter seçimi
-  document.querySelectorAll('.char-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      SFX.click();
-      selectCharacter(btn.dataset.char);
-    });
-  });
-
-  // Ekstra butonlar — harita ekranı
-  $('btn-open-cards')?.addEventListener('click',()=>{ SFX.click(); showCards(); });
-  $('btn-open-digital')?.addEventListener('click',()=>{ SFX.click(); showScreen('digital'); });
-  $('btn-open-teacher')?.addEventListener('click',()=>{ SFX.click(); showTeacher(); });
 
   // Kartlar ekranı
   $('btn-cards-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
@@ -2034,9 +2525,4 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Öğretmen paneli
   $('btn-teacher-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
 
-  // Kültürel Miras AI
-  $('btn-open-ai')?.addEventListener('click',()=>{ SFX.click(); openAIChat(); });
-  $('btn-ai-back')?.addEventListener('click',()=>{ SFX.click(); showScreen('map'); });
-  $('ai-send-btn')?.addEventListener('click',()=>{ sendAIMessage(); });
-  $('ai-input')?.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendAIMessage(); }});
 });

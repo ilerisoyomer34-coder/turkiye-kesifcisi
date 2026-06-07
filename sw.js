@@ -4,7 +4,7 @@
    Strateji: Cache-First (oyun tamamen çevrimdışı çalışır)
    ============================================================ */
 
-const CACHE_VERSION = 'tkf-v14';
+const CACHE_VERSION = 'tkf-v37';
 const FONT_CACHE    = 'tkf-fonts-v4';
 
 const GAME_ASSETS = [
@@ -62,8 +62,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // HTML dosyaları — Network First (her zaman taze HTML)
-  if (event.request.method === 'GET' && (url.endsWith('.html') || url.endsWith('/'))) {
+  // HTML/JS/CSS dosyaları — Network First (her zaman taze uygulama kodu)
+  if (event.request.method === 'GET' && (
+    url.endsWith('.html') || url.endsWith('/') ||
+    url.includes('.js') || url.includes('.css')
+  )) {
     event.respondWith(networkFirst(event.request));
     return;
   }

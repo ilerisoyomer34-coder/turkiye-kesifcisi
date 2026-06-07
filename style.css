@@ -380,11 +380,76 @@ html, body {
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  position: relative;
+  background: #d8e7dc;
 }
 #turkey-map {
   width: 100%;
   height: auto;
   display: block;
+}
+
+.leaflet-map {
+  width: 100%;
+  height: clamp(360px, 56vh, 560px);
+  background: #d8e7dc;
+  display: block;
+}
+
+.legacy-map-fallback {
+  display: none !important;
+}
+
+.map-container.no-leaflet .leaflet-map {
+  display: none;
+}
+
+.map-container.no-leaflet .legacy-map-fallback {
+  display: block !important;
+  min-height: 360px;
+}
+
+.leaflet-container {
+  font-family: 'Nunito', sans-serif;
+  color: #182033;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+}
+
+.province-marker-pin {
+  width: 26px;
+  height: 26px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.28);
+  display: grid;
+  place-items: center;
+}
+
+.province-marker-pin span {
+  transform: rotate(45deg);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.province-marker.completed .province-marker-pin {
+  background: #43e97b !important;
+  border-color: #dfffea;
+}
+
+.province-tooltip {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+
+.leaflet-interactive {
+  outline: none;
 }
 
 .region-polygon {
@@ -422,6 +487,62 @@ html, body {
   stroke: rgba(255,255,255,0.75);
   stroke-width: 3px;
   stroke-linejoin: round;
+}
+
+.city-marker {
+  cursor: pointer;
+  outline: none;
+}
+
+.city-marker-halo {
+  fill: rgba(255,255,255,0.82);
+  stroke: rgba(10,14,39,0.45);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));
+}
+
+.city-marker-dot {
+  stroke: #fff;
+  stroke-width: 1.8;
+}
+
+.city-marker-icon {
+  font-size: 9px;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.city-marker-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  fill: #101426;
+  paint-order: stroke fill;
+  stroke: rgba(255,255,255,0.92);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.city-marker:hover .city-marker-halo,
+.city-marker:focus .city-marker-halo {
+  fill: #fff;
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+.city-marker:hover .city-marker-label,
+.city-marker:focus .city-marker-label {
+  opacity: 1;
+}
+
+.city-marker.completed .city-marker-halo {
+  fill: rgba(67,233,123,0.9);
+}
+
+.city-marker.completed .city-marker-label {
+  fill: #064d2c;
 }
 
 .region-info-card {
@@ -470,6 +591,8 @@ html, body {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-bright);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .badges-strip {
@@ -729,8 +852,8 @@ html, body {
 }
 
 .q-image-wrap {
-  flex: 0 0 230px;
-  min-height: 200px;
+  flex: 0 0 clamp(300px, 32vw, 440px);
+  min-height: clamp(280px, 38vh, 430px);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -742,8 +865,9 @@ html, body {
 }
 #q-image {
   width: 100%;
-  height: 160px;
-  object-fit: cover;
+  height: clamp(230px, 32vh, 360px);
+  object-fit: contain;
+  background: rgba(5, 10, 22, 0.82);
   display: block;
 }
 .q-image-caption {
@@ -767,6 +891,111 @@ html, body {
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 700;
+}
+
+.quiz-host-card {
+  width: min(920px, 100%);
+  margin: 8px auto 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+}
+
+.quiz-host-avatar {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f9c74f, #43e97b);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+  font-size: 2rem;
+}
+
+.quiz-host-bubble {
+  position: relative;
+  flex: 1;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px 16px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.quiz-host-bubble::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 22px;
+  width: 16px;
+  height: 16px;
+  transform: rotate(45deg);
+  background: rgba(255,255,255,0.09);
+  border-left: 1px solid rgba(255,255,255,0.16);
+  border-bottom: 1px solid rgba(255,255,255,0.16);
+}
+
+.quiz-host-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.quiz-host-bubble strong {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.quiz-host-bubble span {
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.hint-btn {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(249,199,79,0.45);
+  background: rgba(249,199,79,0.16);
+  color: #f9c74f;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hint-btn:hover,
+.hint-btn.active {
+  transform: scale(1.08) rotate(-6deg);
+  background: rgba(249,199,79,0.28);
+  box-shadow: 0 0 18px rgba(249,199,79,0.28);
+}
+
+.question-text-in-bubble {
+  margin-top: 2px;
+  background: rgba(0,0,0,0.18) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  text-align: left !important;
+}
+
+.question-hint {
+  border: 1px solid rgba(249,199,79,0.35);
+  background: rgba(249,199,79,0.12);
+  color: #ffe7a3;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.35;
 }
 
 .question-text {
@@ -801,9 +1030,9 @@ html, body {
 .options-grid.type-multi > .multi-hint { font-size: 0.82rem; opacity: 0.85; }
 
 .option-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.035));
+  border: 1.5px solid rgba(255,255,255,0.14);
+  border-radius: 16px;
   padding: 16px 18px;
   color: var(--text);
   font-family: 'Nunito', sans-serif;
@@ -811,7 +1040,7 @@ html, body {
   font-weight: 600;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   line-height: 1.4;
   display: flex;
   align-items: center;
@@ -820,12 +1049,14 @@ html, body {
 .option-btn:hover:not(:disabled) {
   background: rgba(79,172,254,0.12);
   border-color: var(--primary);
-  transform: translateY(-1px);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 12px 26px rgba(79,172,254,0.16);
 }
 .option-btn .opt-letter {
-  min-width: 28px; height: 28px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 8px;
+  min-width: 34px; height: 34px;
+  background: rgba(249,199,79,0.18);
+  border: 1px solid rgba(249,199,79,0.3);
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Poppins', sans-serif;
   font-size: 0.8rem;
@@ -1283,7 +1514,7 @@ html, body {
    bölge sembollü SVG rozetler, multi/drag/scenario UI
    ============================================================ */
 
-/* ── ŞERIT ROZETLERI (harita ekranı) — haritanın hemen altında, akış pozisyonu ── */
+/* ── ŞERIT ROZETLERI (ilerleme detayları) ── */
 .badges-strip {
   position: static;        /* önceki tanımdaki absolute'u iptal et */
   bottom: auto; left: auto; right: auto;
@@ -1340,6 +1571,31 @@ html, body {
   background: rgba(0,0,0,0.35);
   padding: 1px 8px; border-radius: 8px;
   letter-spacing: 0.3px;
+}
+
+.pm-badges-section {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+}
+
+.pm-section-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.progress-badges-strip {
+  max-height: 230px;
+  overflow-y: auto;
+  justify-content: flex-start;
+  padding: 6px 4px;
+  margin: 0;
 }
 
 /* ── BÖLGE GİRİŞ + TÖREN ROZETLERİ ── */
