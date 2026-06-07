@@ -1409,31 +1409,7 @@ function initLeafletMap(hoverCard, rcIcon, rcName, rcStatus){
   const bounds = [];
   loadProvinceBoundaries(hoverCard, rcIcon, rcName, rcStatus);
   REGIONS.forEach(city => {
-    const latLng = cityLatLng(city);
-    bounds.push(latLng);
-    const marker = L.marker(latLng, {
-      title: city.name,
-      icon: provinceIcon(city),
-      keyboard: true,
-    }).addTo(leafletMap);
-
-    marker.bindTooltip(`${city.name} · ${city.badge}`, {
-      className: 'province-tooltip',
-      direction: 'top',
-      offset: [0, -18],
-    });
-
-    marker.on('mouseover', () => {
-      const done=State.completedRegions[city.id];
-      rcIcon.textContent=city.icon;
-      rcName.textContent=`${city.number}. ${city.name}`;
-      rcStatus.textContent=done?` — ${city.badge} ✓ (${done.score} puan)`:` — ${city.badge}`;
-      rcStatus.style.color=done?'var(--accent)':'var(--text-dim)';
-      hoverCard.style.display='flex';
-    });
-    marker.on('mouseout', () => { hoverCard.style.display='none'; });
-    marker.on('click', () => { SFX.click(); enterRegion(city.id); });
-    leafletMarkers[city.id] = marker;
+    bounds.push(cityLatLng(city));
   });
 
   leafletMap.fitBounds(bounds, { padding: [24, 24] });
