@@ -4,7 +4,7 @@
    Strateji: Cache-First (oyun tamamen çevrimdışı çalışır)
    ============================================================ */
 
-const CACHE_VERSION = 'tkf-v41';
+const CACHE_VERSION = 'tkf-v42';
 const FONT_CACHE    = 'tkf-fonts-v4';
 
 const GAME_ASSETS = [

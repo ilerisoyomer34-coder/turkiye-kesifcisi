@@ -1776,10 +1776,11 @@ function enterRegion(rid){
   const tagline = $('ri-badge-tagline');
   const missionCard = $('ri-mission-card');
   if(done){
-    const pct = Math.round((done.score/(done.maxScore||1000))*100);
+    const totalQuestions = done.totalQuestions || region.questions.length || 5;
+    const pct = Math.round(((done.correct || 0) / totalQuestions) * 100);
     if(startBtn) startBtn.style.display='none';
     if(banner) banner.style.display='flex';
-    if(detail) detail.textContent = `${done.score.toLocaleString('tr-TR')} / ${(done.maxScore||1000).toLocaleString('tr-TR')} puan · Başarın %${pct} · ${renderStars(done.stars||0)}`;
+    if(detail) detail.textContent = `${done.score.toLocaleString('tr-TR')} / ${(done.maxScore||1000).toLocaleString('tr-TR')} puan · ${done.correct || 0}/${totalQuestions} doğru · Başarın %${pct} · ${renderStars(done.stars||0)}`;
     if(tagline) tagline.textContent = 'Kazandığın unvan:';
     if(missionCard) missionCard.style.display='none';
   } else {
@@ -2275,24 +2276,25 @@ function nextQuestion(){
 function completeRegion(){
   const region=State.currentRegion;
   const theoreticalMax = State.quizMaxScore || maxScoreFor(State.shuffledQuestions);
+  const questionCount = State.shuffledQuestions.length || region.questions.length || 5;
   // Her bölge maksimum 1000 puana ölçekle
   const REGION_MAX = 1000;
   const scaledScore = Math.min(REGION_MAX, Math.round(State.quizScore / theoreticalMax * REGION_MAX));
   const stars = starsFor(scaledScore, REGION_MAX);
   // Toplam oturum skorunu da ölçeklendir (ham puanı çıkar, ölçekli ekle)
   State.sessionScore = State.sessionScore - State.quizScore + scaledScore;
-  State.completedRegions[region.id] = { score: scaledScore, maxScore: REGION_MAX, stars, correct: State.quizCorrect };
+  State.completedRegions[region.id] = { score: scaledScore, maxScore: REGION_MAX, stars, correct: State.quizCorrect, totalQuestions: questionCount };
   State.save();
 
   $('stars-display').textContent=renderStars(stars);
   injectBadgeSvg('bc-badge-icon', region.id, region.icon);
   $('bc-badge-name').textContent=region.badge;
   $('bc-region-name').textContent=region.name;
-  $('bc-score').textContent = scaledScore.toLocaleString('tr-TR');
+  $('bc-score').textContent = REGION_MAX.toLocaleString('tr-TR');
   const maxEl = $('bc-max-score');
-  if(maxEl) maxEl.textContent = REGION_MAX.toLocaleString('tr-TR');
-  // Yüzdelik gösterimi
-  const pct = Math.round(scaledScore/REGION_MAX*100);
+  if(maxEl) maxEl.textContent = scaledScore.toLocaleString('tr-TR');
+  // Yüzdelik gösterimi puana değil 5 sorudaki doğru sayısına göre hesaplanır.
+  const pct = Math.round((State.quizCorrect / questionCount) * 100);
   const pctEl = $('bc-pct'); if(pctEl) pctEl.textContent = `%${pct}`;
   const pctFill = $('bc-pct-fill'); if(pctFill) pctFill.style.width = pct + '%';
   $('bc-fact').textContent=region.funFact;
